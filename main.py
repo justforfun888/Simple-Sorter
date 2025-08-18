@@ -171,6 +171,9 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
             continue
         if pos in EXCLUDE_EXACT or pos.startswith(EXCLUDE_POS_PREFIX):
             continue
+
+        if lemma == pos and pos.isupper() and 2 <= len(pos) <= 4:
+            continue
         if lemma in STOPWORDS:
             continue
 
