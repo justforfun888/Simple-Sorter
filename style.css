@@ -1,0 +1,566 @@
+/* 기본 리셋 및 공통 스타일 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 40px 20px;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  background: white;
+  color: #111;
+  display: flex;
+  justify-content: center;
+}
+
+
+.container {
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* 헤더 스타일 */
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.page-title {
+  text-align: center;
+}
+
+.page-title .subtitle {
+  font-size: 1.1rem;
+  font-weight: 600; 
+  color: #868686;
+  margin-bottom: 5px;
+  letter-spacing: 3px;  
+}
+
+.page-title h1 {
+  margin: 4px 0 0 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  color: rgba(39, 39, 39, 1);
+}
+
+/* 입력 섹션 */
+.input-section,
+.analyze-btn-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+textarea {
+  width: 100%;
+  max-width: 600px;
+  min-height: 300px;
+  padding: 15px;
+  font-size: 15px;
+  border: 2px solid #cccccc29;
+  border-radius: 0.5rem;
+  resize: vertical;
+  background: #fbfbfb;
+  color: #333;
+  font-family: inherit;
+}
+
+textarea::placeholder {
+  font-family: inherit;
+  color: #bbb;
+}
+
+/* 분석 버튼 */
+.analyze-btn {
+  width: 100%;
+  flex: 1;
+  max-width: 600px;
+  padding: 14px;
+  font-size: 18px;
+  background: #fbfbfb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.analyze-btn:hover {
+  background: #e7e7e7;
+  color: black;
+}
+
+/* 결과 테이블 */
+.result-tables {
+  display: none;
+  justify-content: center;
+  gap: 30px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+table {
+  width: 60%;
+  border-collapse: collapse;
+  margin: 10px auto 0 auto;
+  display: none;
+  table-layout: fixed;
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid #eee;
+  text-align: center;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+
+th:first-child,
+td:first-child {
+  width: 70%;
+}
+
+th:last-child,
+td:last-child {
+  width: 30%;
+}
+
+th {
+  font-weight: 600;
+  background: #f9f9f9;
+}
+
+/* 필터 관련 스타일 */
+.filter-wrapper {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.filter-container {
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.filter-btn-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.filter-toggle-btn {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background: #fbfbfb;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  padding: 0;
+}
+
+.filter-toggle-btn:hover {
+  background: #e7e7e7;
+}
+
+.filter-toggle-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-area {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  overflow: hidden;
+  max-height: 0;
+  width: max-content;
+  min-width: 250px;
+  margin-top: 5px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 0 16px;
+  z-index: 999;
+}
+
+.filter-area.show {
+  max-height: 300px;
+  padding: 16px;
+}
+
+.filter-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-controls input {
+  flex: 1;
+  max-width: 400px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 2px solid #e3e3e3;
+  border-radius: 0.5rem;
+  background: white;
+  outline: none;
+  box-sizing: border-box;
+  margin-right: 10px;
+}
+
+.filter-controls button {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border: none;
+  background: #f5f4f4;
+  width: auto;
+  color: black;
+  font-size: 14px;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin: 2px;
+  display: inline-block;
+}
+
+.filter-controls button:hover {
+  background: #e5e5e5;
+  color: black;
+}
+
+.filter-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 350px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.filter-list li {
+  padding: 5px 10px;
+  background: #f0f0f0;
+  border-radius: 0.5rem;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.filter-list li button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-weight: bold;
+}
+
+/* 우측 하단 버튼 그룹 */
+.button-group {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  z-index: 1000;
+  border-radius: 0.5rem; 
+  overflow: visible;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  background: #fbfbfb; 
+}
+
+.button-group button {
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0;
+  display: block;
+}
+
+.button-group button img {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+/* 내보내기 관련 */
+.export-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 2000;
+}
+
+.export-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.export-btn img {
+  width: 32px;
+  height: 32px;
+}
+
+.export-dropdown {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 50px;
+  background: #fbfbfb;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+  z-index: 2000;
+}
+
+.export-dropdown.show {
+  display: block;
+}
+
+
+
+body.dark .export-dropdown {
+  background: #dfdfdf;
+}
+
+.export-dropdown li {
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+
+.export-dropdown li img {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
+
+
+
+
+/* 다크 모드 스타일 */
+body.dark {
+  background: #212121;
+  color: #dfdfdf;
+}
+
+body.dark .header h1 {
+  color: #dfdfdf;
+}
+
+body.dark .page-title .subtitle {
+  color: #dfdfdf;
+}
+
+body.dark .button-group {
+  background: #dfdfdf;
+}
+
+body.dark .filter-toggle-btn,
+body.dark .analyze-btn {
+  background-color: #dfdfdf;
+  color: #0e0e0e;
+  transition: background-color 0.2s ease;
+}
+
+body.dark .filter-toggle-btn:hover,
+body.dark .analyze-btn:hover,
+body.dark .filter-controls button:hover {
+  background-color: #7e7e7e !important;
+}
+
+body.dark textarea {
+  background: #333;
+  color: #dddddd;
+  border-color: #666;
+}
+
+body.dark .filter-area {
+  background: #333;
+  border-color: #666;
+}
+
+body.dark table {
+  background: #313131;
+  color: #e1e1e1;
+}
+
+body.dark table th {
+  background: #292929;
+  color: #e1e1e1;
+}
+
+body.dark .filter-controls input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 14px;
+  margin-right: 10px;
+  font-family: inherit;
+  border: none;
+  border-radius: 0.5rem;
+  background: #7d7d7d;
+  color: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+}
+
+body.dark .filter-controls input::placeholder {
+  color: #dddddd;
+}
+
+body.dark .filter-controls button {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 6px 10px;
+  margin: 1px;
+  background: #4f4f4f;
+  color: #dddddd;
+  font-size: 14px;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+body.dark .filter-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 350px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+body.dark .filter-list li {
+  padding: 5px 10px;
+  background: #656565;
+  border-radius: 0.5rem;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  color: #eee;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+body.dark .filter-list li button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .analyze-btn {
+    font-size: 16px;
+    padding: 12px;
+    max-width: 100%;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .filter-controls button {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  
+  .filter-area {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    max-width: 60%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: white;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+  }
+
+  .filter-area.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-controls input {
+    width: 100%;
+  }
+  
+  .filter-list {
+    margin-top: 10px;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+
+}

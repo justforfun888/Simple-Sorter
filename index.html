@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>단어 빈도 분석기</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+
+        <div class="button-group">
+
+
+          <div class="export-wrapper">
+            <button class="export-btn">
+              <img src="images/export.png" alt="Export" />
+            </button>
+            
+          
+            <ul class="export-dropdown" id="exportDropdown">
+              <li onclick="exportData('txt')">
+                <img src="images/text.png" alt="Txt" />
+              </li>
+              <li onclick="exportData('md')">
+                <img src="images/sharp.png" alt="Md" />
+              </li>
+            </ul>
+          </div>
+          
+
+
+
+        <button class="mode-toggle-btn" onclick="toggleMode()">
+          <img id="mode-icon" src="images/mode.png" alt="Toggle Mode">
+        </button>
+        <button class="settings-btn" onclick="setMinFrequency()">
+          <img src="images/setting.png" alt="Setting">
+        </button>
+        <button class="info-btn" onclick="showInfo()">
+          <img src="images/info.png" alt="Info" onclick="window.location.href='usage.html'">
+        </button>
+      </div>
+     
+      <div class="page-title">
+        <h3 class="subtitle">창작자를 위한</h3>
+        <h1>단어 빈도 분석기</h1>
+      </div>
+
+      </div>
+      <div class="input-section">
+        <textarea id="inputText" placeholder="분석할 문장을 입력해주세요"></textarea>
+      </div>
+      <div class="analyze-btn-wrapper">
+        <button class="analyze-btn" onclick="analyzeText()">분석하기</button>
+        <div class="filter-wrapper">
+          <button class="filter-toggle-btn" onclick="toggleFilter()">
+            <img src="images/filter.png" alt="Filter">
+          </button>
+          <div class="filter-area" id="filterArea">
+            <div class="filter-inner">
+              <div class="filter-controls">
+                <input type="text" id="filterInput" placeholder="제외할 단어" />
+                <div class="filter-buttons">
+                  <button onclick="addFilter()">추가</button>
+                  <button onclick="clearAllFilters()">삭제</button>
+                </div>
+              </div>
+              <ul class="filter-list" id="filterList" style="display: none;"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="result-tables" id="resultTables">
+        <table id="nounTable">
+          <thead>
+            <tr>
+              <th>명사</th>
+              <th>빈도</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <table id="verbTable">
+          <thead>
+            <tr>
+              <th>동사/형용사</th>
+              <th>빈도</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </div>
+
+
+    <script>
+      let filterWords = [];
+      let minFrequency = 5;
+
+      function addFilter() {
+        const input = document.getElementById('filterInput');
+        const word = input.value.trim();
+        if (word && !filterWords.includes(word)) {
+          filterWords.push(word);
+          updateFilterList();
+          input.value = '';
+        }
+      }
+  
+      function toggleFilter() {
+        const filterArea = document.getElementById('filterArea');
+        filterArea.classList.toggle('show');
+      }
+
+
+function setMinFrequency() {
+  const value = prompt("최소 빈도를 입력하세요:", minFrequency);
+
+  if (value === null) {
+    return;
+  }
+
+  const num = parseInt(value, 10);
+  if (!isNaN(num) && num > 0) {
+    minFrequency = num;
+    alert(`최소 빈도가 ${minFrequency}회로 설정되었습니다.`);
+  }
+}
+
+  
+      document.getElementById('filterInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addFilter();
+        }
+      });
+
+      function removeFilter(word) {
+        filterWords = filterWords.filter(w => w !== word);
+        updateFilterList();
+      }
+
+      function clearAllFilters() {
+        filterWords = [];
+        updateFilterList();
+      }
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = getCookie("theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+  }
+});
+
+      
+      function updateFilterList() {
+        const list = document.getElementById('filterList');
+        list.innerHTML = '';
+        filterWords.forEach(word => {
+          const li = document.createElement('li');
+          li.innerHTML = `${word} 
+    
+							<button onclick="removeFilter('${word}')">×</button>`;
+          list.appendChild(li);
+        });
+        // 필터가 있을 때만 보이게
+        list.style.display = filterWords.length > 0 ? 'flex' : 'none';
+      }
+      async function analyzeText() {
+        const text = document.getElementById('inputText').value;
+        document.getElementById('resultTables').style.display = "flex";
+        if (!text.trim()) {
+          alert("내용을 입력하세요.");
+          return;
+        }
+        try {
+          const response = await fetch("http://127.0.0.1:8000/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              text,
+              min_freq: minFrequency
+            })
+          });
+          const data = await response.json();
+          const nounBody = document.querySelector("#nounTable tbody");
+          const verbBody = document.querySelector("#verbTable tbody");
+          nounBody.innerHTML = "";
+          verbBody.innerHTML = "";
+          if ((!data.nouns || data.nouns.length === 0) && (!data.verbs || data.verbs.length === 0)) {
+            nounBody.innerHTML = `
+    
+							<tr>
+								<td colspan="2">명사 결과 없음</td>
+							</tr>`;
+            verbBody.innerHTML = `
+    
+							<tr>
+								<td colspan="2">동사/형용사 결과 없음</td>
+							</tr>`;
+          } else {
+            data.nouns.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
+              nounBody.innerHTML += `
+    
+							<tr>
+								<td>${word}</td>
+								<td>${count}</td>
+							</tr>`;
+            });
+            data.verbs.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
+              verbBody.innerHTML += `
+    
+							<tr>
+								<td>${word}</td>
+								<td>${count}</td>
+							</tr>`;
+            });
+          }
+          document.getElementById('nounTable').style.display = "table";
+          document.getElementById('verbTable').style.display = "table";
+        } catch (err) {
+          console.error(err);
+          alert("분석 중 오류가 발생했습니다.");
+        }
+      }
+
+      function getTodayDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${month}${day}`; 
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.querySelector(".export-btn");
+  const exportDropdown = document.getElementById("exportDropdown");
+
+  if (exportBtn && exportDropdown) {
+    exportBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 버튼 클릭 시 바깥 이벤트 막기
+      exportDropdown.classList.toggle("show");
+    });
+  }
+
+  // 바깥 영역 클릭하면 드롭다운 닫기
+  document.addEventListener("click", (e) => {
+    if (
+      !exportBtn.contains(e.target) &&
+      !exportDropdown.contains(e.target)
+    ) {
+      exportDropdown.classList.remove("show");
+    }
+  });
+});
+
+
+
+function exportData(format) {
+  const nounTable = document.getElementById("nounTable");
+  const verbTable = document.getElementById("verbTable");
+
+  const nounRows = Array.from(nounTable.querySelectorAll("tbody tr"))
+    .map(tr => Array.from(tr.children).map(td => td.innerText));
+  const verbRows = Array.from(verbTable.querySelectorAll("tbody tr"))
+    .map(tr => Array.from(tr.children).map(td => td.innerText));
+
+  if ((!nounRows.length || nounRows[0][0].includes("없음")) &&
+      (!verbRows.length || verbRows[0][0].includes("없음"))) {
+    alert("분석 결과가 없습니다.");
+    return;
+  }
+
+  const today = new Date();
+  const dateStr = String(today.getMonth() + 1).padStart(2, '0') +
+                  String(today.getDate()).padStart(2, '0');
+
+  let content = "";
+  let filename = `word-frequency_${dateStr}.${format}`;
+
+  if (format === "txt") {
+    content += "[명사]\n";
+    nounRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
+    content += "\n[동사/형용사]\n";
+    verbRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
+  }
+
+  if (format === "md") {
+    content += "## 명사\n\n| 단어 | 빈도 |\n|------|------|\n";
+    nounRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
+    content += "\n## 동사/형용사\n\n| 단어 | 빈도 |\n|------|------|\n";
+    verbRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
+  }
+
+  const blob = new Blob([content], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+
+  document.getElementById("exportDropdown").style.display = "none";
+}
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+
+  if (document.body.classList.contains("dark")) {
+ 
+    setCookie("theme", "dark", 3);
+    localStorage.setItem("theme", "dark");
+  } else {
+
+    setCookie("theme", "light", 3);
+    localStorage.setItem("theme", "light");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = getCookie("theme") || localStorage.getItem("theme");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+  } else {
+    document.body.classList.remove("dark");
+  }
+});
+
+
+function setCookie(name, value, days) {
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+
+
+
+function setCookie(name, value, days) {
+  const date = new Date();
+  date.setTime(date.getTime() + (days*24*60*60*1000)); // days일 뒤 만료
+  const expires = "expires=" + date.toUTCString();
+  document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+
+function getCookie(name) {
+  const cname = name + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for(let i=0; i < ca.length; i++) {
+    let c = ca[i].trim();
+    if (c.indexOf(cname) == 0) {
+      return c.substring(cname.length, c.length);
+    }
+  }
+  return "";
+}
+
+document.querySelectorAll(".custom-select").forEach(select => {
+  const selected = select.querySelector(".selected");
+  const options = select.querySelector(".options");
+
+  selected.addEventListener("click", () => {
+    options.style.display =
+      options.style.display === "flex" ? "none" : "flex";
+  });
+
+  options.querySelectorAll("div").forEach(option => {
+    option.addEventListener("click", () => {
+      selected.innerHTML = option.innerHTML; // 아이콘 + 텍스트 반영
+      options.style.display = "none";
+      console.log("선택됨:", option.dataset.value);
+    });
+  });
+});
+
+
+      
+    </script>
+  </body>
+</html>
