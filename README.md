@@ -1,2 +1,2 @@
 # word-frequency
-Simple word sorter
+just simple word sorter
