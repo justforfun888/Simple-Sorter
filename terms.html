@@ -15,7 +15,7 @@
       color: #333;
     }
 
-    /* 홈 버튼 스타일 (고정, 왼쪽 상단) */
+    
     .home-btn {
       position: fixed;
       top: 30px;
@@ -41,43 +41,43 @@
       display: block;
     }
 
-    /* 키보드 포커스 가독성 향상 */
+    
     .home-btn:focus-visible {
       outline: 3px solid rgba(0,0,0,0.12);
       outline-offset: 2px;
     }
 
-    /* 메인 제목 (왼쪽 정렬) */
+    
     h3.page-title {
       text-align: center;
       margin: 0 0 20px 0;
-      color: #666666; /* 제목 회색 */
+      color: #666666; 
       font-size: 1.2125rem;
     }
 
-    /* 각 조 항목 래퍼 */
+    
     .term-item {
       margin-bottom: 18px;
-      text-align: left; /* 왼쪽 정렬 고정 */
+      text-align: left; 
     }
 
-    /* 조 제목 */
+    
     .term-item h4 {
       margin: 0 0 6px 0;
       font-size: 0.8125rem;
       font-weight: 600;
-      color: #666666; /* 제목 회색 */
+      color: #666666; 
     }
 
-    /* 조 내용 (제목보다 연한 회색) */
+    
     .term-item p {
       margin: 0;
-      color: #9a9a9a; /* 본문 연한 회색 */
+      color: #9a9a9a; 
       font-size: 0.7825rem;
-      white-space: pre-wrap; /* 줄바꿈 보존 */
+      white-space: pre-wrap; 
     }
 
-    /* 부칙 스타일 (더 연한 회색, 위와 동일한 정렬) */
+    
     .term-footer {
       margin-top: 36px;
       font-size: 11px;
@@ -85,7 +85,7 @@
       text-align: left;
     }
 
-    /* 작은 화면에서 내용과 홈버튼 충돌이 있을 경우 간격 보정 */
+    
     @media (max-width: 420px) {
       .home-btn {
         top: 18px;
@@ -100,7 +100,7 @@
   </style>
 </head>
 <body>
-  <!-- 홈 버튼 (index.html로 이동) -->
+  
   <a href="index.html" class="home-btn" aria-label="홈으로 이동">
     <img src="images/home.svg" alt="main">
   </a>

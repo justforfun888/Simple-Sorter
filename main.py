@@ -113,19 +113,15 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
         for row in reader:
             if not row:
                 continue
+            
             surface = (row[0] or "").strip()
+            # CSV 출력에서 원형(lemma)은 8번째 열(인덱스 7)에 있습니다.
+            # 없을 경우 표면형(surface)을 대신 사용합니다.
+            lemma = (row[7] or "").strip() if len(row) > 7 and row[7] != "*" else surface
             pos = (row[1] or "").strip() if len(row) > 1 else ""
-            # lemma 후보: 8열(7) → 4열(3) → 표면형
-            lemma = None
-            for idx in (7, 3, 0):
-                if len(row) > idx and row[idx] and row[idx] != "*":
-                    lemma = row[idx].strip()
-                    break
-            if not lemma:
-                lemma = surface
-            # surface가 POS 코드(ETM 등)로만 찍힌 이상값 제거
-            if surface == pos and pos.isupper() and 2 <= len(pos) <= 4:
-                continue
+
+            if not surface: continue
+
             tokens.append({"surface": surface, "pos": pos, "lemma": lemma})
 
     else:  # used == "tsv"
@@ -136,12 +132,15 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
             parts = line.split("\t")
             if len(parts) < 2:
                 continue
+            
             surface = parts[0].strip()
             pos = parts[1].strip()
+            # TSV 출력에서 원형(lemma)은 3번째 부분(인덱스 2)에 있습니다.
+            # 없을 경우 표면형(surface)을 대신 사용합니다.
             lemma = parts[2].strip() if len(parts) > 2 and parts[2].strip() != "*" else surface
-            # surface가 POS 코드(ETM 등)로만 찍힌 이상값 제거
-            if surface == pos and pos.isupper() and 2 <= len(pos) <= 4:
-                continue
+
+            if not surface: continue
+
             tokens.append({"surface": surface, "pos": pos, "lemma": lemma})
 
     return tokens
@@ -151,36 +150,56 @@ STOPWORDS = {
     "이다","하다","없다","있다","보다","되다","들다","자다","말다","오다","가다","주다","되어다"
 }
 
+# main.py 파일의 filter_and_bucket 함수를 아래 내용으로 교체해주세요.
+
+
 def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
     """
     - 명사: POS startswith 'NN'
     - 동사/형용사: POS startswith 'VV' or 'VA'
     - 조사/어미/기호/접사 등은 제외
     """
-    EXCLUDE_POS_PREFIX = ("J","E","X","S","F")
+    EXCLUDE_POS_PREFIX = ("J", "E", "X", "S", "F")
     EXCLUDE_EXACT = {"UNKNOWN"}
 
     nouns: List[str] = []
     v_adj: List[str] = []
 
     for t in tokens:
-        lemma = (t["lemma"] or t["surface"]).strip()
-        pos = t["pos"].strip()
+        # lemma가 비어있을 경우를 대비해 surface를 사용
+        lemma = (t.get("lemma") or t.get("surface", "")).strip()
+        pos = t.get("pos", "").strip()
 
-        if not lemma or lemma == "*" or len(lemma) < min_len:
+        # 1. 기본적인 필터링 (단어가 없거나, 제외할 품사인 경우)
+        if not lemma or lemma == "*":
             continue
         if pos in EXCLUDE_EXACT or pos.startswith(EXCLUDE_POS_PREFIX):
             continue
-
-        if lemma == pos and pos.isupper() and 2 <= len(pos) <= 4:
+        
+        # 2. 단어 자체가 품사 태그처럼 생긴 경우 제외 (NNB, JX 등)
+        if lemma.isupper() and 2 <= len(lemma) <= 4:
             continue
+        
+        # 3. 불용어(stopwords) 처리
         if lemma in STOPWORDS:
             continue
 
-        if pos.startswith("NN"):
-            nouns.append(lemma)
-        elif pos.startswith("VV") or pos.startswith("VA"):
-            v_adj.append(lemma)
+        # 4. 품사별로 분류 및 최종 가공
+        if pos.startswith("NN"):  # 명사 처리
+            if len(lemma) >= min_len:
+                nouns.append(lemma)
+        
+        elif pos.startswith("VV") or pos.startswith("VA"):  # 동사/형용사 처리
+            # ##### 여기가 핵심! #####
+            # 어간(lemma) 뒤에 '다'를 붙여 기본형으로 만들어줍니다.
+            # 예: '하' -> '하다', '없' -> '없다'
+            basic_form = lemma + "다"
+            
+            # 불용어 목록에 기본형이 있는지도 한번 더 확인합니다.
+            if basic_form in STOPWORDS:
+                continue
+            
+            v_adj.append(basic_form)
 
     return nouns, v_adj
 
@@ -198,6 +217,8 @@ def freq_list(words: List[str], min_count: int):
 @app.post("/analyze")
 def analyze_api(inp: TextIn):
     tokens = mecab_parse(inp.text)
+
+    
     nouns, v_adj = filter_and_bucket(tokens, min_len=2)
     return {
         "nouns": freq_list(nouns, inp.min_freq),

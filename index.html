@@ -3,9 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>단어 빈도 분석기</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <link rel="stylesheet" href="style.css" />
+    <title>단어 빈도 분석기 - 작가를 위한 분석 도구</title>
+    <meta name="description" content="사용자 입력 텍스트에서 자주 쓰인 단어들을 두 가지로 분류해줍니다. 빠르고 직관적인 글쓰기 도우미.">
+    <meta name="keywords" content="단어 분석기, 웹소설 도구, 글쓰기 도우미, 단어 빈도 체크, 글쓰기 툴, 포스타입 작가, 포타">
+
+
+    <meta property="og:title" content="웹소설 작가를 위한 단어 빈도 분석기" />
+    <meta property="og:description" content="자신의 글에서 자주 쓰는 단어를 분석하고 스타일을 개선하세요." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://당신의도메인.com" />
+    <meta property="og:image" content="https://당신의도메인.com/og-image.jpg" />
+    
+
+
+
+
+
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" type="image/svg+xml" href="images/logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="mask-icon" href="images/logo.svg" color="#111111">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
   </head>
   <body>
     <div class="container">
@@ -16,16 +41,16 @@
 
           <div class="export-wrapper">
             <button class="export-btn">
-              <img src="images/export.png" alt="Export" />
+              <img src="images/export.svg" alt="Export" />
             </button>
             
           
             <ul class="export-dropdown" id="exportDropdown">
-              <li onclick="exportData('txt')">
-                <img src="images/text.png" alt="Txt" />
+              <li onclick="exportData('txt')"> 
+                <img src="images/text.svg" alt="Txt" />
               </li>
               <li onclick="exportData('md')">
-                <img src="images/sharp.png" alt="Md" />
+                <img src="images/sharp.svg" alt="Md" />
               </li>
             </ul>
           </div>
@@ -34,13 +59,13 @@
 
 
         <button class="mode-toggle-btn" onclick="toggleMode()">
-          <img id="mode-icon" src="images/mode.png" alt="Toggle Mode">
+          <img id="mode-icon" src="images/dark.svg" alt="Toggle Mode">
         </button>
         <button class="settings-btn" onclick="setMinFrequency()">
-          <img src="images/setting.png" alt="Setting">
+          <img src="images/setting.svg" alt="Setting">
         </button>
         <button class="info-btn" onclick="showInfo()">
-          <img src="images/info.png" alt="Info" onclick="window.location.href='usage.html'">
+          <img src="images/info.svg" alt="Info" onclick="window.location.href='usage.html'">
         </button>
       </div>
      
@@ -57,7 +82,7 @@
         <button class="analyze-btn" onclick="analyzeText()">분석하기</button>
         <div class="filter-wrapper">
           <button class="filter-toggle-btn" onclick="toggleFilter()">
-            <img src="images/filter.png" alt="Filter">
+            <img src="images/filter.svg" alt="Filter">
           </button>
           <div class="filter-area" id="filterArea">
             <div class="filter-inner">
@@ -170,7 +195,7 @@ function setMinFrequency() {
 							<button onclick="removeFilter('${word}')">×</button>`;
           list.appendChild(li);
         });
-        // 필터가 있을 때만 보이게
+        
         list.style.display = filterWords.length > 0 ? 'flex' : 'none';
       }
       async function analyzeText() {
@@ -247,12 +272,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (exportBtn && exportDropdown) {
     exportBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // 버튼 클릭 시 바깥 이벤트 막기
+      e.stopPropagation();
       exportDropdown.classList.toggle("show");
     });
   }
 
-  // 바깥 영역 클릭하면 드롭다운 닫기
+  
   document.addEventListener("click", (e) => {
     if (
       !exportBtn.contains(e.target) &&
@@ -265,18 +290,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-function exportData(format) {
+async function exportData(format) {
   const nounTable = document.getElementById("nounTable");
   const verbTable = document.getElementById("verbTable");
+  const exportDropdown = document.getElementById("exportDropdown");
 
   const nounRows = Array.from(nounTable.querySelectorAll("tbody tr"))
     .map(tr => Array.from(tr.children).map(td => td.innerText));
   const verbRows = Array.from(verbTable.querySelectorAll("tbody tr"))
     .map(tr => Array.from(tr.children).map(td => td.innerText));
 
-  if ((!nounRows.length || nounRows[0][0].includes("없음")) &&
-      (!verbRows.length || verbRows[0][0].includes("없음"))) {
-    alert("분석 결과가 없습니다.");
+  const noResults = ((!nounRows.length || nounRows[0][0].includes("없음")) &&
+                     (!verbRows.length || verbRows[0][0].includes("없음")));
+  if (noResults) {
+    showToast("분석 결과가 없습니다.");
+    if (exportDropdown) exportDropdown.classList.remove("show");
     return;
   }
 
@@ -292,23 +320,109 @@ function exportData(format) {
     nounRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
     content += "\n[동사/형용사]\n";
     verbRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
-  }
-
-  if (format === "md") {
+  } else if (format === "md") {
     content += "## 명사\n\n| 단어 | 빈도 |\n|------|------|\n";
     nounRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
     content += "\n## 동사/형용사\n\n| 단어 | 빈도 |\n|------|------|\n";
     verbRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
+  } else {
+    showToast("지원하지 않는 형식입니다.");
+    if (exportDropdown) exportDropdown.classList.remove("show");
+    return;
   }
 
-  const blob = new Blob([content], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
+  if (!content.trim()) {
+    showToast("복사할 내용이 없습니다.");
+    if (exportDropdown) exportDropdown.classList.remove("show");
+    return;
+  }
 
-  document.getElementById("exportDropdown").style.display = "none";
+  
+  function showToast(message) {
+    const existing = document.getElementById("simple-copy-toast");
+    if (existing) existing.remove();
+
+    const t = document.createElement("div");
+    t.id = "simple-copy-toast";
+    t.innerText = message;
+    Object.assign(t.style, {
+      position: "fixed",
+      bottom: "24px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      padding: "8px 12px",
+      fontSize: "13px",
+      borderRadius: "6px",
+      background: "rgba(0,0,0,0.8)",
+      color: "#fff",
+      zIndex: 2000,
+      boxShadow: "0 1px 6px rgba(0,0,0,0.2)",
+      opacity: "0",
+      transition: "opacity 160ms ease",
+      pointerEvents: "none",
+    });
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = "1"; });
+    setTimeout(() => {
+      t.style.opacity = "0";
+      setTimeout(() => {
+        const el = document.getElementById("simple-copy-toast");
+        if (el) el.remove();
+      }, 180);
+    }, 1500);
+  }
+
+  
+  if (format === "md") {
+    
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    if (exportDropdown) exportDropdown.classList.remove("show");
+    return;
+  }
+
+  
+  async function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        
+      }
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return !!ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  const copied = await copyToClipboard(content);
+  if (copied) showToast("클립보드에 복사되었습니다.");
+  
+
+  if (exportDropdown) exportDropdown.classList.remove("show");
 }
+
+
 
 function toggleMode() {
   document.body.classList.toggle("dark");
@@ -352,7 +466,7 @@ function getCookie(name) {
 
 function setCookie(name, value, days) {
   const date = new Date();
-  date.setTime(date.getTime() + (days*24*60*60*1000)); // days일 뒤 만료
+  date.setTime(date.getTime() + (days*24*60*60*1000));
   const expires = "expires=" + date.toUTCString();
   document.cookie = name + "=" + value + ";" + expires + ";path=/";
 }
@@ -382,7 +496,7 @@ document.querySelectorAll(".custom-select").forEach(select => {
 
   options.querySelectorAll("div").forEach(option => {
     option.addEventListener("click", () => {
-      selected.innerHTML = option.innerHTML; // 아이콘 + 텍스트 반영
+      selected.innerHTML = option.innerHTML;
       options.style.display = "none";
       console.log("선택됨:", option.dataset.value);
     });
@@ -392,5 +506,14 @@ document.querySelectorAll(".custom-select").forEach(select => {
 
       
     </script>
+
+<footer class="site-footer">
+  <p>© 2025 단어 빈도 분석기. All rights reserved. &nbsp;
+    <a href="privacy.html">개인정보처리방침</a> · 
+    <a href="terms.html">이용약관</a>
+  </p>
+</footer>
+
+
   </body>
 </html>

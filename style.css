@@ -1,4 +1,3 @@
-/* 기본 리셋 및 공통 스타일 */
 * {
   box-sizing: border-box;
 }
@@ -22,7 +21,6 @@ body {
   gap: 25px;
 }
 
-/* 헤더 스타일 */
 .header {
   display: flex;
   justify-content: center;
@@ -57,7 +55,6 @@ body {
   color: rgba(39, 39, 39, 1);
 }
 
-/* 입력 섹션 */
 .input-section,
 .analyze-btn-wrapper {
   display: flex;
@@ -88,7 +85,6 @@ textarea::placeholder {
   color: #bbb;
 }
 
-/* 분석 버튼 */
 .analyze-btn {
   width: 100%;
   flex: 1;
@@ -109,7 +105,6 @@ textarea::placeholder {
   color: black;
 }
 
-/* 결과 테이블 */
 .result-tables {
   display: none;
   justify-content: center;
@@ -151,7 +146,6 @@ th {
   background: #f9f9f9;
 }
 
-/* 필터 관련 스타일 */
 .filter-wrapper {
   position: relative;
   display: inline-block;
@@ -292,7 +286,6 @@ th {
   font-weight: bold;
 }
 
-/* 우측 하단 버튼 그룹 */
 .button-group {
   position: fixed;
   bottom: 20px;
@@ -322,7 +315,6 @@ th {
   display: block;
 }
 
-/* 내보내기 관련 */
 .export-wrapper {
   position: relative;
   display: inline-block;
@@ -381,7 +373,6 @@ body.dark .export-dropdown {
 
 
 
-/* 다크 모드 스타일 */
 body.dark {
   background: #212121;
   color: #dfdfdf;
@@ -499,7 +490,28 @@ body.dark .filter-list li button {
   font-weight: bold;
 }
 
-/* 반응형 디자인 */
+.site-footer {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10.5px;
+  color: #afafaf;
+  text-align: center;
+  
+}
+
+.site-footer a {
+  color: #afafaf;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+
+
 @media (max-width: 768px) {
   .analyze-btn {
     font-size: 16px;
