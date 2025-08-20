@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>개인정보 처리방침 - 단어 빈도 분석기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      line-height: 1.7;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+
+    /* 홈 버튼 스타일 (고정, 왼쪽 상단) */
+    .home-btn {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 0.5rem;
+      background: #fbfbfb;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      padding: 0;
+      z-index: 2100;
+      text-decoration: none;
+    }
+
+    .home-btn img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .home-btn:focus-visible {
+      outline: 3px solid rgba(0,0,0,0.12);
+      outline-offset: 2px;
+    }
+
+    /* 페이지 제목 (왼쪽 정렬) */
+    h3.page-title {
+      text-align: center;
+      margin: 0 0 30px 0;
+      color: #666666; /* 제목 회색 */
+      font-size: 1.2125rem;
+    }
+
+    /* 보조 문장 (노트) */
+    .note {
+      margin: 0 0 18px 0;
+      color: #9a9a9a;
+      text-align: left;
+      font-size: 0.7625rem;
+    }
+
+    /* 각 항목 래퍼 */
+    .term-item {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    /* 항목 제목 */
+    .term-item h4 {
+      margin: 0 0 6px 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #666666; /* 제목 회색 */
+    }
+
+    /* 항목 내용 (더 연한 회색) */
+    .term-item p {
+      margin: 0;
+      color: #9a9a9a; /* 본문 연한 회색 */
+      font-size: 0.7825rem;
+      white-space: pre-wrap;
+    }
+
+    .term-item ul {
+      margin: 6px 0 0 18px;
+      color: #9a9a9a;
+      font-size: 0.8125rem;
+    }
+
+    .term-footer {
+      margin-top: 36px;
+      font-size: 11px;
+      color: #9a9a9a;
+      text-align: left;
+    }
+
+    /* 작은 화면에서 홈버튼/여백 보정 */
+    @media (max-width: 420px) {
+      .home-btn {
+        top: 18px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+      }
+      body {
+        margin: 20px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 홈 버튼 (index.html로 이동) -->
+  <a href="index.html" class="home-btn" aria-label="홈으로 이동">
+    <img src="images/home.svg" alt="main">
+  </a>
+
+  <h3 class="page-title">개인정보 처리방침</h3>
+<p class="note">본 사이트는 회원가입·로그인·결제 기능이 없으며, 입력 텍스트를 서버에 저장하지 않습니다.</p>
+
+<div class="term-item">
+  <h4>제1조 (개인정보의 처리목적)</h4>
+  <p>본 사이트는 Google AdSense 및 Google Analytics를 통해 광고 노출 및 방문 통계 분석 목적의 쿠키(cookie) 정보를 처리할 수 있습니다. 쿠키는 개별 이용자를 직접 식별하지 않으며 광고 맞춤화 및 서비스 개선을 위한 목적으로만 사용됩니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제2조 (처리하는 개인정보의 항목 및 수집방식)</h4>
+  <p>본 사이트는 이용자의 개인정보를 직접 수집·저장하지 않습니다. 다만 Google AdSense/Analytics 등의 외부 서비스가 자동으로 수집할 수 있는 항목은 다음과 같습니다.</p>
+  <ul>
+    <li>IP 주소(부분 마스킹될 수 있음)</li>
+    <li>브라우저 종류 및 버전, 운영체제</li>
+    <li>접속 일시 및 페이지 뷰(방문한 페이지 정보)</li>
+    <li>접속 기기(모바일/데스크톱), 화면 해상도 등 기기정보</li>
+    <li>유입 경로(레퍼러) 및 캠페인 정보</li>
+  </ul>
+  <p>위 항목들은 본 사이트가 직접 수집하는 것이 아니라 Google 등 외부 제공자에 의해 자동으로 수집·처리됩니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제3조 (개인정보의 처리 및 보유기간)</h4>
+  <p>본 사이트는 이용자의 개인정보를 직접 저장하지 않으므로 자체적인 보유·파기 기간을 운영하지 않습니다. Google AdSense 및 Google Analytics에서 수집·보관되는 데이터의 처리·보유 기간은 해당 서비스 제공자의 정책에 따릅니다. 자세한 내용은 Google의 개인정보처리방침(https://policies.google.com/privacy)을 참조하시기 바랍니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제4조 (개인정보의 제3자 제공 및 처리 위탁)</h4>
+  <p>본 사이트는 개인정보를 직접 제3자에게 제공하거나 별도로 위탁하지 않습니다. 다만 Google AdSense/Analytics 사용에 따라 수집되는 정보는 Google이 수집·처리하며, 해당 데이터 처리과정 및 제3자 제공은 Google의 정책이 우선 적용됩니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제5조 (쿠키의 설치·운영 및 거부)</h4>
+  <p>이용자는 브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수 있습니다. 쿠키 거부 시 일부 서비스(맞춤형 광고, 통계 등)의 제공이 제한될 수 있습니다.</p>
+  <ul>
+    <li>크롬: 설정 &gt; 개인정보 및 보안 &gt; 쿠키 및 기타 사이트 데이터</li>
+    <li>사파리(iOS): 설정 &gt; Safari &gt; 개인정보 보호</li>
+    <li>엣지: 설정 &gt; 쿠키 및 사이트 권한</li>
+  </ul>
+</div>
+
+<div class="term-item">
+  <h4>제6조 (개인정보의 파기)</h4>
+  <p>본 사이트는 이용자의 개인정보를 직접 수집·보유하지 않으므로 별도의 파기 절차가 존재하지 않습니다. 다만 외부 서비스(Google 등)에 의해 처리되는 데이터의 파기·관리 방법은 해당 서비스 제공자의 정책에 따릅니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제7조 (개인정보의 안전성 확보 조치)</h4>
+  <p>본 사이트는 개인정보를 직접 처리하지 않지만, 외부 광고·통계 서비스 연동 시 신뢰할 수 있는 업체(Google)를 사용하고 있으며, 사이트 측에서는 서버에 사용자 개인식별정보를 저장하지 않도록 구성하여 불필요한 개인정보 처리 위험을 최소화하고 있습니다. 또한 사이트 관리자는 계정 접근 관리를 통해 외부 연동 정보의 불법적 접근을 방지하고 있습니다.</p>
+</div>
+
+<div class="term-item">
+  <h4>제8조 (정보주체의 권리 및 행사방법)</h4>
+  <p>이용자는 Google 계정 및 Google 서비스 설정을 통해 쿠키 차단, 광고설정 변경, 데이터 열람·정정·삭제 등 권리를 행사할 수 있습니다. 관련 안내는 다음 주소들을 참조하시기 바랍니다.</p>
+  <ul>
+    <li>Google 계정의 개인정보 설정 및 관리: https://myaccount.google.com</li>
+    <li>데이터 삭제·권리 행사 안내(예): https://support.google.com/accounts/answer/3024190</li>
+  </ul>
+</div>
+
+<div class="term-item">
+  <h4>제9조 (개인정보 보호책임자)</h4>
+  <p>담당자: 사이트 운영자<br/>
+     이메일: contact@yourdomain.com</p>
+</div>
+
+<div class="term-item">
+  <h4>제10조 (권익침해 구제 방법)</h4>
+  <ul>
+    <li>개인정보 분쟁조정위원회: 1833-6972, www.kopico.go.kr</li>
+    <li>개인정보침해신고센터: 118, privacy.kisa.or.kr</li>
+    <li>대검찰청: 1301</li>
+    <li>경찰청(사이버범죄 신고): 182</li>
+  </ul>
+</div>
+
+<div class="term-item">
+  <h4>제11조 (개인정보 처리방침의 변경)</h4>
+  <p>본 개인정보 처리방침은 관련 법령·정책 또는 서비스 내용의 변경에 따라 수정될 수 있으며, 변경 시 변경·시행일 및 변경사유를 본 페이지에 게시하여 이용자가 쉽게 확인할 수 있도록 합니다.</p>
+</div>
+
+<p class="term-footer">시행일: 2025-08-20</p>
+
+
+</body>
+</html>

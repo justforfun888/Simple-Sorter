@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>이용약관</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      line-height: 1.7;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+
+    /* 홈 버튼 스타일 (고정, 왼쪽 상단) */
+    .home-btn {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 0.5rem;
+      background: #fbfbfb;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      padding: 0;
+      z-index: 2100;
+      text-decoration: none;
+    }
+
+    .home-btn img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    /* 키보드 포커스 가독성 향상 */
+    .home-btn:focus-visible {
+      outline: 3px solid rgba(0,0,0,0.12);
+      outline-offset: 2px;
+    }
+
+    /* 메인 제목 (왼쪽 정렬) */
+    h3.page-title {
+      text-align: center;
+      margin: 0 0 20px 0;
+      color: #666666; /* 제목 회색 */
+      font-size: 1.2125rem;
+    }
+
+    /* 각 조 항목 래퍼 */
+    .term-item {
+      margin-bottom: 18px;
+      text-align: left; /* 왼쪽 정렬 고정 */
+    }
+
+    /* 조 제목 */
+    .term-item h4 {
+      margin: 0 0 6px 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #666666; /* 제목 회색 */
+    }
+
+    /* 조 내용 (제목보다 연한 회색) */
+    .term-item p {
+      margin: 0;
+      color: #9a9a9a; /* 본문 연한 회색 */
+      font-size: 0.7825rem;
+      white-space: pre-wrap; /* 줄바꿈 보존 */
+    }
+
+    /* 부칙 스타일 (더 연한 회색, 위와 동일한 정렬) */
+    .term-footer {
+      margin-top: 36px;
+      font-size: 11px;
+      color: #9a9a9a;
+      text-align: left;
+    }
+
+    /* 작은 화면에서 내용과 홈버튼 충돌이 있을 경우 간격 보정 */
+    @media (max-width: 420px) {
+      .home-btn {
+        top: 18px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+      }
+      body {
+        margin: 20px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 홈 버튼 (index.html로 이동) -->
+  <a href="index.html" class="home-btn" aria-label="홈으로 이동">
+    <img src="images/home.svg" alt="main">
+  </a>
+
+  <h3 class="page-title">이용약관</h3>
+
+  <div class="term-item">
+    <h4>제1조 목적</h4>
+    <p>본 이용약관은 “단어 빈도 분석기”(이하 "사이트")의 서비스 이용 조건과 운영에 관한 기본 사항을 규정함을 목적으로 합니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제2조 용어의 정의</h4>
+    <p>① “이용자”라 함은 본 사이트를 방문하여 서비스를 이용하는 모든 사람을 말합니다.
+② “운영자”라 함은 본 사이트를 관리·운영하는 자를 말합니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제3조 약관 외 준칙</h4>
+    <p>운영자는 필요한 경우 별도의 공지나 안내문을 통해 운영정책을 둘 수 있으며, 본 약관과 운영정책이 중첩될 경우 운영정책이 우선 적용됩니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제4조 서비스 제공</h4>
+    <p>① 본 사이트는 사용자가 입력한 텍스트의 단어 빈도 분석 등 간단한 웹도구 서비스를 무료로 제공합니다.
+② 기술적·운영상 불가피한 사유가 있을 경우 사전 고지 없이 서비스가 중단될 수 있습니다.
+③ 사이트 내용이나 기능은 예고 없이 변경될 수 있습니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제5조 이용자의 의무</h4>
+    <p>이용자는 본 사이트의 정상 운영을 방해하거나 지적재산권 침해, 법령 위반 등의 행위를 해서는 안 됩니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제6조 저작권 및 지적재산권</h4>
+    <p>① 본 사이트의 디자인, 코드, 이미지 등은 관련 법령에 의해 보호됩니다.
+② 이용자는 자료를 무단 복제, 배포, 영리적 이용을 할 수 없습니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제7조 책임의 한계</h4>
+    <p>① 본 사이트는 무료로 제공되는 서비스 이용과 관련하여 발생하는 손해에 대해 책임을 지지 않습니다.
+② Google Analytics, Google AdSense 등의 데이터 수집·활용에 대해서는 각 서비스 제공자의 정책이 우선합니다.
+③ 광고 게재로 인한 결과나 기대수익 미달에 대해서는 책임지지 않습니다.</p>
+  </div>
+
+  <div class="term-item">
+    <h4>제8조 면책조항</h4>
+    <p>① 천재지변, 서버 장애, 제3자 공격 등 운영자가 통제할 수 없는 사유로 인한 서비스 중단에 대해 책임지지 않습니다.
+② 이용자가 본 약관을 위반하여 발생한 문제는 이용자 본인의 책임입니다.</p>
+  </div>
+
+  <p class="term-footer">본 약관은 2025년 8월 20일부터 시행합니다.</p>
+</body>
+</html>
