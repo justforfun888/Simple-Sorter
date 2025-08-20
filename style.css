@@ -496,13 +496,13 @@ body.dark .filter-list li button {
   left: 50%;
   transform: translateX(-50%);
   font-size: 10.5px;
-  color: #5b5b5b;
+  color: #afafaf;
   text-align: center;
   
 }
 
 .site-footer a {
-  color: #5b5b5b;
+  color: #afafaf;
   text-decoration: none;
 }
 
@@ -577,3 +577,4 @@ body.dark .filter-list li button {
 
 
 }
+
