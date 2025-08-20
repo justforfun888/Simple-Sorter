@@ -89,6 +89,13 @@ body {
     width: 100%;
     text-align: left;
   }
+
+.usage-content,
+.usage-content p {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+}
   
   .icon-placeholder {
     width: 40px;
@@ -241,4 +248,5 @@ body.dark .usage-text img {
 
   
   
+
  
