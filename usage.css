@@ -90,11 +90,14 @@ body {
     text-align: left;
   }
 
-.usage-content,
-.usage-content p {
-  word-break: keep-all;
-  overflow-wrap: normal;
-  white-space: normal;
+.one-line {
+  display: inline-flex; 
+  align-items: center;
+  gap: 6px; 
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
 }
   
   .icon-placeholder {
@@ -250,3 +253,4 @@ body.dark .usage-text img {
   
 
  
+
