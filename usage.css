@@ -131,7 +131,7 @@ body {
     max-width: 23px;
     height: auto;
     vertical-align: text-top;
-    margin-top: -1px;
+    margin-top: 1px;
   }
   
   .icon-users {
@@ -260,6 +260,7 @@ body.dark .usage-text img {
   
 
  
+
 
 
 
