@@ -90,15 +90,23 @@ body {
     text-align: left;
   }
 
-.one-line {
-  display: inline-flex; 
-  align-items: center;
-  gap: 6px; 
-  flex-wrap: nowrap;
+.usage-text p.one-line {
+  display: block;
   white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
+  word-break: keep-all;
+  overflow: visible;
+  max-width: none;
 }
+
+
+.icon-filter {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+
   
   .icon-placeholder {
     width: 40px;
@@ -253,4 +261,5 @@ body.dark .usage-text img {
   
 
  
+
 
