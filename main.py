@@ -218,17 +218,27 @@ def freq_list(words: List[str], min_count: int):
 
 @app.post("/analyze")
 def analyze_api(inp: TextIn):
+
     tokens = mecab_parse(inp.text)
 
-    
+    print("--- [단계 1] Mecab이 분석한 원본 데이터 ---")
+    print(tokens)
+
+
+    # 2. 분석된 결과에서 필요한 단어만 골라냅니다.
     nouns, v_adj = filter_and_bucket(tokens, min_len=2)
+
+
+    print("--- [단계 2] 필터링 후 살아남은 단어 목록 ---")
+    print("명사 목록:", nouns)
+    print("동사/형용사 목록:", v_adj)
+
+
+
     return {
         "nouns": freq_list(nouns, inp.min_freq),
-        "verbs": freq_list(v_adj, inp.min_freq)  # 동사/형용사
+        "verbs": freq_list(v_adj, inp.min_freq) 
     }
 
 
-
-
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
-
