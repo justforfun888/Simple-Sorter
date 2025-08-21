@@ -20,26 +20,30 @@ class TextIn(BaseModel):
     text: str
     min_freq: int = 5
 
-STOPWORDS = {
-    # --- [필수] ---
-    "이다", "하다", "없다", "있다", "보다", "되다", "들다", "자다", "말다", "오다", "가다", "주다", "되어다", "않다",
-    "싶다", "지다", "였다", "그렇다", "이렇다"
-      # --- [그룹 2] ---
-    "할다", "하는다", "이었다", "이런다", "그런다", "잘다", "되어다",
-    "채는다", "있는다", "없는다", "않는다", "있다는다", "어떻게다",
-    "있던다", "하면다", "아니고다", "하게다", "같은다", "하지다",
-    "그럴다", "될다", "보니다", "있을다", "달았다", "들은다",
-    "하고다", "봐요다", "없어다", "나오는다",
 
-    # --- [그룹 3]---
+# --- [1] 동사/형용사 불용어 목록 ---
+# 문법적인 기능만 하거나, 너무 자주 등장하여 분석에 방해가 될 수 있는 단어들
+STOPWORDS = {
+    # 핵심 기능 단어
+    "이다", "아니다", "있다", "없다", "같다", "되다", "않다", "말다", "싶다",
+    "지다", "였다", "그렇다", "이렇다", "돼다", 
+
+    # 기본적인 움직임 동사
     "하다", "보다", "오다", "가다", "주다", "들다", "자다"
 }
 
+# --- [2] 명사 불용어 목록 ---
+# 문법적으로는 명사이지만, 글의 핵심 내용과 거리가 먼 단어들
 NOUN_STOPWORDS = {
-    "조금", "거기", "여기", "저기",
-    "이것", "그것", "저것", "무엇", "누구",
-    "때문", "하나", "오늘", "어제", "내일",
-    "정도", "가지", "경우", "동안", "수가", "건가", "보고", "무슨", "지금"
+    # 대명사
+    "거기", "여기", "저기", "이것", "그것", "저것", "무엇", "누구", "지금",
+
+    # 의존 명사 및 단위/시간 명사
+    "때문", "하나", "오늘", "어제", "내일", "정도", "가지", "경우", "동안",
+    "수가", "건가", 
+    
+    # 기타 일반 명사/부사성 명사
+    "사실", "조금", "무슨", "보고"
 }
 
 def analyze_with_okt(text: str) -> List[Dict[str, str]]:
@@ -50,10 +54,7 @@ def analyze_with_okt(text: str) -> List[Dict[str, str]]:
     i = 0
     while i < len(okt_result):
         word, pos = okt_result[i]
-        
-        # --- [핵심 로직!] '명사 + 하다' 패턴을 감지하고 하나로 합치기 ---
-        # 예: ('공부', 'Noun'), ('하다', 'Verb') -> '공부하다'
-        # 예: ('후련', 'Noun'), ('하다', 'Adjective') -> '후련하다'
+
         if pos == 'Noun' and (i + 1) < len(okt_result):
             next_word, next_pos = okt_result[i+1]
             if next_word == '하다' and (next_pos == 'Verb' or next_pos == 'Adjective'):
@@ -70,33 +71,32 @@ def analyze_with_okt(text: str) -> List[Dict[str, str]]:
             
     return tokens
 
-
-
-# main.py 파일의 filter_and_bucket_okt 함수를 아래 내용으로 교체해주세요.
-
 def filter_and_bucket_okt(tokens: List[Dict[str, str]], min_len: int = 2):
-    """
-    깨끗하게 정제된 토큰들을 명사와 동사/형용사로 분류합니다.
-    """
+    """KoNLPy 태그에 맞춘 필터링"""
     nouns = []
     verbs = []
     
     for t in tokens:
-        # 이제 t['lemma']는 '공부하다', '채다' 처럼 완벽한 형태입니다.
         lemma = t.get("lemma", "").strip()
         pos = t.get("pos", "").strip()
         
-        # --- 이제 필터링이 아주 간단해집니다 ---
-        if len(lemma) < min_len:
-            continue
-        # 두 종류의 불용어 목록을 한 번에 확인합니다.
+        # --- [변경 없음] 공통 필터링 규칙 ---
         if lemma in STOPWORDS or lemma in NOUN_STOPWORDS:
             continue
+        if not re.search(r"[가-힣]", lemma):
+            continue
         
-        # KoNLPy의 정확한 품사 태그를 기준으로 분류합니다.
+        # --- KoNLPy 태그 기준 분류 ---
         if pos == 'Noun':
-            nouns.append(lemma)
+            # 명사는 기존 규칙(min_len, 기본값 2)을 그대로 사용합니다.
+            if len(lemma) >= min_len:
+                nouns.append(lemma)
+                
         elif pos == 'Verb' or pos == 'Adjective':
+            # 3글자 미만인 동사/형용사는 모두 제외합니다.
+            if len(lemma) < 3:
+                continue
+            
             verbs.append(lemma)
     
     return nouns, verbs
@@ -133,6 +133,7 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 
 
