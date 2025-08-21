@@ -1,2 +1,4 @@
 fastapi
 uvicorn
+konlpy
+JPype1
