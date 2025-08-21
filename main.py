@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
@@ -234,9 +235,14 @@ def freq_list(words: List[str], min_count: int):
 
 @app.post("/analyze")
 def analyze_api(inp: TextIn):
-    tokens = mecab_parse(inp.text)
+    try:
+        tokens = mecab_parse(inp.text)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "error": "mecab_failed",
+            "detail": str(e),
+        })
 
-    
     nouns, v_adj = filter_and_bucket(tokens, min_len=2)
     return {
         "nouns": freq_list(nouns, inp.min_freq),

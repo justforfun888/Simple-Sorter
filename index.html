@@ -212,7 +212,7 @@ function setMinFrequency() {
           return;
         }
         try {
-          const response = await + fetch("/analyze", {
+          const response = await fetch("/analyze", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -222,6 +222,16 @@ function setMinFrequency() {
               min_freq: minFrequency
             })
           });
+          if (!response.ok) {
+            let errMsg = `요청 실패 (HTTP ${response.status})`;
+            try {
+              const maybeErr = await response.json();
+              if (maybeErr && (maybeErr.detail || maybeErr.error)) {
+                errMsg = maybeErr.detail || maybeErr.error;
+              }
+            } catch (_) {}
+            throw new Error(errMsg);
+          }
           const data = await response.json();
           const nounBody = document.querySelector("#nounTable tbody");
           const verbBody = document.querySelector("#verbTable tbody");
@@ -260,7 +270,7 @@ function setMinFrequency() {
           document.getElementById('verbTable').style.display = "table";
         } catch (err) {
           console.error(err);
-          alert("분석 중 오류가 발생했습니다.");
+          alert(`분석 중 오류: ${err && err.message ? err.message : '알 수 없는 오류'}`);
         }
       }
 
