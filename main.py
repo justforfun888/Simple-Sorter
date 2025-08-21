@@ -9,12 +9,11 @@ import os
 import re
 import csv
 from io import StringIO
+import shutil
 
-# --- [변경 1] 윈도우 전용 경로 변수 모두 제거 ---
-# Docker 컨테이너 안에 설치된 mecab의 절대 경로를 직접 지정합니다.
-MECAB_BIN = "/usr/bin/mecab"
-# Render(리눅스) 환경에서는 mecabrc 파일 경로를 지정할 필요가 없으므로,
-# 관련 변수들을 모두 제거하여 윈도우 의존성을 없앱니다.
+# --- [변경 1] MeCab 실행 파일 경로 자동 감지 (윈도우/리눅스 모두 대응) ---
+# 우선 PATH에서 mecab을 찾고, 없으면 /usr/bin/mecab이 존재할 때만 사용합니다. 둘 다 없으면 None.
+MECAB_BIN = shutil.which("mecab") or ("/usr/bin/mecab" if os.path.exists("/usr/bin/mecab") else None)
 
 app = FastAPI()
 app.add_middleware(
@@ -42,6 +41,8 @@ def _mecab_args_base() -> Tuple[List[str], str]:
     -d (사전 경로)나 -r (설정 파일) 없이 기본 mecab을 호출합니다.
     """
     dicdir, charset = _mecab_info()
+    if not MECAB_BIN:
+        raise RuntimeError("MeCab 실행 파일을 찾을 수 없습니다. 서버에 MeCab이 설치되어 있는지 확인하세요.")
     args = [MECAB_BIN]
     # Docker에 설치된 기본 사전을 사용하므로 -d, -r 옵션이 필요 없습니다.
     return args, charset
@@ -175,12 +176,16 @@ def freq_list(words: List[str], min_count: int):
 
 @app.post("/analyze")
 def analyze_api(inp: TextIn):
-    tokens = mecab_parse(inp.text)
-    nouns, v_adj = filter_and_bucket(tokens, min_len=2)
-    return {
-        "nouns": freq_list(nouns, inp.min_freq),
-        "verbs": freq_list(v_adj, inp.min_freq) 
-    }
+    try:
+        tokens = mecab_parse(inp.text)
+        nouns, v_adj = filter_and_bucket(tokens, min_len=2)
+        return {
+            "nouns": freq_list(nouns, inp.min_freq),
+            "verbs": freq_list(v_adj, inp.min_freq)
+        }
+    except Exception as e:
+        # 프론트가 항상 JSON을 받도록 보장합니다.
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 # --- [변경 5] 괄호 오류를 수정한, 최종 웹페이지 서빙 코드 ---
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
