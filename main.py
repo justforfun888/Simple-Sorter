@@ -31,11 +31,13 @@ class TextIn(BaseModel):
 # ------------------ MeCab 환경/인코딩 ------------------
 
 def _run(args: List[str], text: str, charset: str) -> subprocess.CompletedProcess:
-    """UTF-8 환경에서 MeCab 실행"""
+    """Windows에서 UTF-8 강제 설정"""
     try:
-        # Windows에서 UTF-8 환경 변수 설정
+        # Windows 환경 변수 설정
         env = os.environ.copy()
         env['PYTHONIOENCODING'] = 'utf-8'
+        env['LANG'] = 'ko_KR.UTF-8'
+        env['LC_ALL'] = 'ko_KR.UTF-8'
         
         return subprocess.run(
             args,
@@ -44,7 +46,8 @@ def _run(args: List[str], text: str, charset: str) -> subprocess.CompletedProces
             text=True,
             encoding='utf-8',
             errors="ignore",
-            env=env  # 환경 변수 전달
+            env=env,
+            creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0  # Windows 전용
         )
     except Exception as e:
         return subprocess.CompletedProcess(args=args, returncode=1, stdout="", stderr=str(e))
@@ -283,4 +286,5 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
