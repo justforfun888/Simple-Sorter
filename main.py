@@ -68,6 +68,8 @@ def analyze_with_okt(text: str) -> List[Dict[str, str]]:
         print(f"KoNLPy 분석 실패: {e}")
         return []
 
+# main.py 파일의 filter_and_bucket_okt 함수를 아래 내용으로 교체해주세요.
+
 def filter_and_bucket_okt(tokens: List[Dict[str, str]], min_len: int = 2):
     """KoNLPy 태그에 맞춘 필터링"""
     nouns = []
@@ -82,7 +84,7 @@ def filter_and_bucket_okt(tokens: List[Dict[str, str]], min_len: int = 2):
         if len(lemma) < min_len:
             continue
             
-        # 불용어 체크
+        # (동사/형용사 위주) 불용어 체크
         if lemma in STOPWORDS:
             continue
         
@@ -92,7 +94,12 @@ def filter_and_bucket_okt(tokens: List[Dict[str, str]], min_len: int = 2):
         
         # KoNLPy 태그 기준 분류
         if pos.startswith('Noun'):
+            # --- [변경!] 명사 불용어 목록에 있는지 확인하는 규칙 추가 ---
+            if lemma in NOUN_STOPWORDS:
+                continue
+            
             nouns.append(lemma)
+            
         elif pos.startswith('Verb') or pos.startswith('Adjective'):
             verbs.append(lemma)
     
@@ -130,4 +137,5 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
