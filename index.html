@@ -20,11 +20,11 @@
     <meta name="twitter:image" content="https://simplesorter.cc/images/og-image.png" />
 
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <link rel="stylesheet" href="/static/style.css" />
-    <link rel="icon" type="image/svg+xml" href="/static/images/logo.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
-    <link rel="mask-icon" href="/static/images/logo.svg" color="#111111">
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="mask-icon" href="images/logo.svg" color="#111111">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -47,16 +47,16 @@
 
           <div class="export-wrapper">
             <button class="export-btn">
-              <img src="/static/images/export.svg" alt="Export" />
+              <img src="images/export.svg" alt="Export" />
             </button>
             
           
             <ul class="export-dropdown" id="exportDropdown">
               <li onclick="exportData('txt')"> 
-                <img src="/static/images/text.svg" alt="Txt" />
+                <img src="images/text.svg" alt="Txt" />
               </li>
               <li onclick="exportData('md')">
-                <img src="/static/images/sharp.svg" alt="Md" />
+                <img src="images/sharp.svg" alt="Md" />
               </li>
             </ul>
           </div>
@@ -65,13 +65,13 @@
 
 
         <button class="mode-toggle-btn" onclick="toggleMode()">
-          <img id="mode-icon" src="/static/images/dark.svg" alt="Toggle Mode">
+          <img id="mode-icon" src="images/dark.svg" alt="Toggle Mode">
         </button>
         <button class="settings-btn" onclick="setMinFrequency()">
-          <img src="/static/images/setting.svg" alt="Setting">
+          <img src="images/setting.svg" alt="Setting">
         </button>
         <button class="info-btn" onclick="showInfo()">
-          <img src="/static/images/info.svg" alt="Info" onclick="window.location.href='usage.html'">
+          <img src="images/info.svg" alt="Info" onclick="window.location.href='usage.html'">
         </button>
       </div>
      
@@ -88,7 +88,7 @@
         <button class="analyze-btn" onclick="analyzeText()">분석하기</button>
         <div class="filter-wrapper">
           <button class="filter-toggle-btn" onclick="toggleFilter()">
-            <img src="/static/images/filter.svg" alt="Filter">
+            <img src="images/filter.svg" alt="Filter">
           </button>
           <div class="filter-area" id="filterArea">
             <div class="filter-inner">
