@@ -14,9 +14,12 @@ from io import StringIO
 # 2) mecabrc의 dicdir = C:\mecab\mecab-ko-dic
 # 3) PATH에 C:\mecab\bin 포함 (mecab.exe 호출 가능)
 # ---------------------------------------------------------
-MECAB_BIN = "mecab"
-MECABRC = os.environ.get("MECABRC", r"C:\mecab\etc\mecabrc")
-DEFAULT_DICDIR = r"C:\mecab\mecab-ko-dic"
+MECAB_BIN = os.environ.get("MECAB_BIN", "mecab")
+# mecabrc는 실제 파일이 있을 때만 사용 (Windows만 쓸 수도, 서버는 비울 수도)
+MECABRC = os.environ.get("MECABRC", "")
+# 필요하면 사전 경로를 환경변수로 넘겨주고, 없으면 자동 감지에 맡김
+DEFAULT_DICDIR = os.environ.get("MECAB_DICDIR", "")
+
 
 app = FastAPI()
 app.add_middleware(
@@ -32,14 +35,15 @@ class TextIn(BaseModel):
 # ------------------ MeCab 환경/인코딩 ------------------
 
 def _mecab_info() -> Tuple[str, str]:
-    """mecab -D 출력에서 (dicdir, charset)을 추출 (실패 시 기본값)."""
+    """mecab -D 출력에서 (dicdir, charset) 추출. 실패해도 동작은 하게 기본값."""
+    args = [MECAB_BIN, "-D"]
+    if MECABRC and os.path.exists(MECABRC):
+        args += ["-r", MECABRC]
     try:
-        proc = subprocess.run(
-            [MECAB_BIN, "-D", "-r", MECABRC],
-            capture_output=True, text=True, encoding="utf-8", errors="ignore"
-        )
-        out = proc.stdout or ""
-        dicdir = DEFAULT_DICDIR
+        out = subprocess.run(
+            args, capture_output=True, text=True, encoding="utf-8", errors="ignore"
+        ).stdout or ""
+        dicdir = None
         charset = "utf-8"
 
         m_dic = re.search(r"dicdir:\s*(.+)", out)
@@ -57,7 +61,8 @@ def _mecab_info() -> Tuple[str, str]:
                 charset = "utf-8"
         return dicdir, charset
     except Exception:
-        return DEFAULT_DICDIR, "utf-8"
+        return None, "utf-8"
+
 
 def _run(args: List[str], text: str, encoding: str) -> subprocess.CompletedProcess:
     return subprocess.run(
@@ -70,26 +75,39 @@ def _run(args: List[str], text: str, encoding: str) -> subprocess.CompletedProce
     )
 
 def _mecab_run_csv(text: str) -> str:
-    """CSV 포맷(-O csv)으로 실행. 실패 시 예외."""
-    dicdir, charset = _mecab_info()
-    args = [MECAB_BIN, "-O", "csv", "-r", MECABRC, "-d", dicdir]
-    proc = _run(args, text, charset)
+    """CSV 포맷(-O csv) 실행. 실패 시 예외."""
+    args_base, charset = _mecab_args_base()
+    proc = _run(args_base + ["-O", "csv"], text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"csv-failed: code={proc.returncode}\n{proc.stderr}")
     return proc.stdout
 
 def _mecab_run_tsv(text: str) -> str:
     """
-    사용자 포맷(-F)으로 TSV 강제.
+    사용자 포맷(-F)으로 TSV.
     컬럼: surface \t pos \t lemma
     """
-    dicdir, charset = _mecab_info()
+    args_base, charset = _mecab_args_base()
     fmt = "%m\t%f[0]\t%f[6]\n"   # 표면형, 품사, 원형
-    args = [MECAB_BIN, "-r", MECABRC, "-d", dicdir, "-F", fmt, "-E", "EOS\n"]
-    proc = _run(args, text, charset)
+    proc = _run(args_base + ["-F", fmt, "-E", "EOS\n"], text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"tsv-failed: code={proc.returncode}\n{proc.stderr}")
     return proc.stdout
+
+
+def _mecab_args_base() -> Tuple[List[str], str]:
+    dicdir, charset = _mecab_info()
+    args = [MECAB_BIN]
+    # mecabrc가 실제로 있을 때만 -r 추가
+    if MECABRC and os.path.exists(MECABRC):
+        args += ["-r", MECABRC]
+    # 사전 경로: -D로 감지된 dicdir 우선, 없으면 환경변수의 기본값 사용
+    if dicdir and os.path.exists(dicdir):
+        args += ["-d", dicdir]
+    elif DEFAULT_DICDIR and os.path.exists(DEFAULT_DICDIR):
+        args += ["-d", DEFAULT_DICDIR]
+    return args, charset
+
 
 # ------------------ 파싱/분류/집계 ------------------
 
