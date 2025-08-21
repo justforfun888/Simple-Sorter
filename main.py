@@ -179,9 +179,9 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
       - 명사: NN* 및 NP/NR (+ SL/SH는 명사 취급)
       - 동사/형용사: VV*/VA* 만 포함 (VX/VCP/VCN 제외)
     - 조사/어미/기호/접사 등 제외
-    - 태그가 인식되지 않으면 한글 토큰은 명사로 폴백
+    - 태그가 인식되지 않으면 제외 (fallback 로직 제거)
     """
-    EXCLUDE_POS_PREFIX = ("J", "E", "SF", "SP", "SS", "SE", "SO", "SW", "X")  # 조사/어미/기호/접사
+    EXCLUDE_POS_PREFIX = ("J", "E", "SF", "SP", "SS", "SE", "SO", "SW", "X")
     EXCLUDE_EXACT = {"UNKNOWN"}
 
     nouns: List[str] = []
@@ -197,14 +197,13 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
 
         # 1) 공통 제외
         if pos_u in EXCLUDE_EXACT or pos_u.startswith(EXCLUDE_POS_PREFIX):
-            # 주의: SL/SH/SN은 여기서 걸러지지 않음 (S 단일 프리픽스 사용 안 함)
-            pass
+            continue
 
         # 2) 불용어
         if lemma in STOPWORDS:
             continue
 
-        # 3) 분류
+        # 3) 분류 - 명확한 태그만 처리
         is_noun = pos_u.startswith("NN") or pos_u in {"NP", "NR", "SL", "SH"}
         is_v = pos_u.startswith("VV")
         is_a = pos_u.startswith("VA")
@@ -215,19 +214,16 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
             continue
 
         if is_v or is_a:
-            # 한국어 기본형 보정: '다' 붙이기 (이미 '다'로 끝나면 유지)
+            # 한국어 기본형 보정: '다' 붙이기
             basic_form = lemma
             if re.search(r"[가-힣]", lemma) and not lemma.endswith("다"):
                 basic_form = lemma + "다"
             if basic_form in STOPWORDS:
                 continue
-            v_adj.append(basic_form)
+            if len(basic_form) >= min_len:  # 길이 체크 추가
+                v_adj.append(basic_form)
             continue
 
-        # 4) 태그가 애매하거나 비어있을 때의 안전한 폴백:
-        #    한글이 포함되고 길이가 충분하면 명사로 취급
-        if re.search(r"[가-힣]", lemma) and len(lemma) >= min_len:
-            nouns.append(lemma)
 
     return nouns, v_adj
 
