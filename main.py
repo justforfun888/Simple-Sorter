@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -237,6 +237,7 @@ def freq_list(words: List[str], min_count: int):
 # ------------------ API ------------------
 
 @app.post("/analyze")
+@app.post("/api/analyze")
 def analyze_api(inp: TextIn):
     try:
         tokens = mecab_parse(inp.text)
@@ -252,11 +253,42 @@ def analyze_api(inp: TextIn):
         "verbs": freq_list(v_adj, inp.min_freq)  # 동사/형용사
     }
 
+@app.get("/analyze")
+@app.get("/api/analyze")
+def analyze_api_get(text: str, min_freq: int = 5):
+    try:
+        tokens = mecab_parse(text)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "error": "mecab_failed",
+            "detail": str(e),
+        })
+
+    nouns, v_adj = filter_and_bucket(tokens, min_len=2)
+    return {
+        "nouns": freq_list(nouns, min_freq),
+        "verbs": freq_list(v_adj, min_freq)
+    }
+
+# Explicit CORS preflight handlers (some proxies return 405 to OPTIONS by default)
+@app.options("/analyze")
+@app.options("/api/analyze")
+def analyze_options():
+    return Response(status_code=204)
+
+
 # ------------------ Static Files ------------------
-# API 라우트보다 뒤에 마운트하여 "/analyze"가 우선 처리되도록 합니다.
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+
+@app.get("/")
+def root():
+    return FileResponse("index.html")
 
 # 간단한 헬스체크
 @app.get("/ping")
+@app.get("/api/ping")
 def ping():
     return {"ok": True}
