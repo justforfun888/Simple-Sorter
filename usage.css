@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    padding: 40px 20px;
+    padding: 100px 20px;
     font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
       system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
       "Noto Sans KR", "Malgun Gothic", sans-serif;
@@ -89,23 +89,6 @@ body {
     width: 100%;
     text-align: left;
   }
-
-.usage-text p.one-line {
-  display: block;
-  white-space: nowrap;
-  word-break: keep-all;
-  overflow: visible;
-  max-width: none;
-}
-
-
-.icon-filter {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  vertical-align: middle;
-}
-
   
   .icon-placeholder {
     width: 40px;
@@ -131,7 +114,7 @@ body {
     max-width: 23px;
     height: auto;
     vertical-align: text-top;
-    margin-top: 1px;
+    margin-top: -1px;
   }
   
   .icon-users {
@@ -258,9 +241,4 @@ body.dark .usage-text img {
 
   
   
-
  
-
-
-
-
