@@ -170,56 +170,64 @@ STOPWORDS = {
     "이다","하다","없다","있다","보다","되다","들다","자다","말다","오다","가다","주다","되어다"
 }
 
-# main.py 파일의 filter_and_bucket 함수를 아래 내용으로 교체해주세요.
+
 
 
 def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
     """
-    - 명사: POS startswith 'NN'
-    - 동사/형용사: POS startswith 'VV' or 'VA'
-    - 조사/어미/기호/접사 등은 제외
+    - KO(MeCab-ko) 전용:
+      - 명사: NN* 및 NP/NR (+ SL/SH는 명사 취급)
+      - 동사/형용사: VV*/VA* 만 포함 (VX/VCP/VCN 제외)
+    - 조사/어미/기호/접사 등 제외
+    - 태그가 인식되지 않으면 한글 토큰은 명사로 폴백
     """
-    EXCLUDE_POS_PREFIX = ("J", "E", "X", "S", "F")
+    EXCLUDE_POS_PREFIX = ("J", "E", "SF", "SP", "SS", "SE", "SO", "SW", "X")  # 조사/어미/기호/접사
     EXCLUDE_EXACT = {"UNKNOWN"}
 
     nouns: List[str] = []
     v_adj: List[str] = []
 
     for t in tokens:
-        # lemma가 비어있을 경우를 대비해 surface를 사용
         lemma = (t.get("lemma") or t.get("surface", "")).strip()
-        pos = t.get("pos", "").strip()
-
-        # 1. 기본적인 필터링 (단어가 없거나, 제외할 품사인 경우)
+        pos = (t.get("pos") or "").strip()
         if not lemma or lemma == "*":
             continue
-        if pos in EXCLUDE_EXACT or pos.startswith(EXCLUDE_POS_PREFIX):
-            continue
-        
-        # 2. 단어 자체가 품사 태그처럼 생긴 경우 제외 (NNB, JX 등)
-        if lemma.isupper() and 2 <= len(lemma) <= 4:
-            continue
-        
-        # 3. 불용어(stopwords) 처리
+
+        pos_u = pos.upper()
+
+        # 1) 공통 제외
+        if pos_u in EXCLUDE_EXACT or pos_u.startswith(EXCLUDE_POS_PREFIX):
+            # 주의: SL/SH/SN은 여기서 걸러지지 않음 (S 단일 프리픽스 사용 안 함)
+            pass
+
+        # 2) 불용어
         if lemma in STOPWORDS:
             continue
 
-        # 4. 품사별로 분류 및 최종 가공
-        if pos.startswith("NN"):  # 명사 처리
+        # 3) 분류
+        is_noun = pos_u.startswith("NN") or pos_u in {"NP", "NR", "SL", "SH"}
+        is_v = pos_u.startswith("VV")
+        is_a = pos_u.startswith("VA")
+
+        if is_noun:
             if len(lemma) >= min_len:
                 nouns.append(lemma)
-        
-        elif pos.startswith("VV") or pos.startswith("VA"):  # 동사/형용사 처리
-            # ##### 여기가 핵심! #####
-            # 어간(lemma) 뒤에 '다'를 붙여 기본형으로 만들어줍니다.
-            # 예: '하' -> '하다', '없' -> '없다'
-            basic_form = lemma + "다"
-            
-            # 불용어 목록에 기본형이 있는지도 한번 더 확인합니다.
+            continue
+
+        if is_v or is_a:
+            # 한국어 기본형 보정: '다' 붙이기 (이미 '다'로 끝나면 유지)
+            basic_form = lemma
+            if re.search(r"[가-힣]", lemma) and not lemma.endswith("다"):
+                basic_form = lemma + "다"
             if basic_form in STOPWORDS:
                 continue
-            
             v_adj.append(basic_form)
+            continue
+
+        # 4) 태그가 애매하거나 비어있을 때의 안전한 폴백:
+        #    한글이 포함되고 길이가 충분하면 명사로 취급
+        if re.search(r"[가-힣]", lemma) and len(lemma) >= min_len:
+            nouns.append(lemma)
 
     return nouns, v_adj
 
