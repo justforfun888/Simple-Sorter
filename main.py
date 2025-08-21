@@ -37,7 +37,7 @@ STOPWORDS = {
 }
 
 NOUN_STOPWORDS = {
-    "사실", "조금", "거기", "여기", "저기",
+    "조금", "거기", "여기", "저기",
     "이것", "그것", "저것", "무엇", "누구",
     "때문", "하나", "오늘", "어제", "내일",
     "정도", "가지", "경우", "동안", "수가", "건가", "보고", "무슨", "지금"
@@ -136,6 +136,7 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 
 
