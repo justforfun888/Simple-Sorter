@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import subprocess
 from typing import List, Dict, Tuple
 import os
@@ -237,8 +238,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 2. 루트 경로("/")로 GET 요청이 오면, index.html 파일을 보여주도록 규칙을 정합니다.
 @app.get("/", response_class=FileResponse)
 def read_root():
+    # BASE_DIR 경로에 있는 "index.html" 파일을 반환합니다.
     return os.path.join(BASE_DIR, "index.html")
 
-# 3. /static 경로 아래의 파일들을 제공하기 위한 설정입니다.
-#    (CSS, 이미지 파일 등을 위해 필요합니다.)
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR)), name="static")
+# 3. /static 이라는 가상 경로를 만들고, 실제 파일은 BASE_DIR 폴더에서 찾도록 설정합니다.
+#    CSS, 이미지, JS 파일 등을 위해 반드시 필요합니다.
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
