@@ -14,7 +14,6 @@ app.add_middleware(
     allow_methods=["*"], allow_headers=["*"],
 )
 
-# Okt 인스턴스 생성 (앱 시작시 한 번만)
 okt = Okt()
 
 class TextIn(BaseModel):
@@ -44,62 +43,62 @@ NOUN_STOPWORDS = {
 }
 
 def analyze_with_okt(text: str) -> List[Dict[str, str]]:
-    """KoNLPy Okt로 형태소 분석"""
-    try:
-        # pos 함수로 (단어, 품사) 튜플 리스트 반환
-        morphs = okt.pos(text)
-        tokens = []
+
+    okt_result = okt.pos(text, norm=True, stem=True)
+    
+    tokens = []
+    i = 0
+    while i < len(okt_result):
+        word, pos = okt_result[i]
         
-        for surface, pos in morphs:
-            # 원형 추출 (동사/형용사는 기본형으로 변환)
-            if pos.startswith('Verb') or pos.startswith('Adjective'):
-                lemma = surface + "다" if not surface.endswith("다") else surface
-            else:
-                lemma = surface
-                
-            tokens.append({
-                "surface": surface,
-                "pos": pos, 
-                "lemma": lemma
-            })
-        
-        return tokens
+        # --- [핵심 로직!] '명사 + 하다' 패턴을 감지하고 하나로 합치기 ---
+        # 예: ('공부', 'Noun'), ('하다', 'Verb') -> '공부하다'
+        # 예: ('후련', 'Noun'), ('하다', 'Adjective') -> '후련하다'
+        if pos == 'Noun' and (i + 1) < len(okt_result):
+            next_word, next_pos = okt_result[i+1]
+            if next_word == '하다' and (next_pos == 'Verb' or next_pos == 'Adjective'):
+                # 두 단어를 합쳐서 하나의 동사/형용사로 만듭니다.
+                combined_word = word + next_word
+                tokens.append({"lemma": combined_word, "pos": next_pos})
+                # '하다' 부분은 이미 처리했으므로 건너뜁니다.
+                i += 2
+                continue
+
+        # 위의 특수 패턴에 해당하지 않는 일반적인 단어들을 추가합니다.
+        tokens.append({"lemma": word, "pos": pos})
+        i += 1
+            
+    return tokens
     except Exception as e:
         print(f"KoNLPy 분석 실패: {e}")
         return []
 
 
+# main.py 파일의 filter_and_bucket_okt 함수를 아래 내용으로 교체해주세요.
+
 def filter_and_bucket_okt(tokens: List[Dict[str, str]], min_len: int = 2):
-    """KoNLPy 태그에 맞춘 필터링"""
+    """
+    깨끗하게 정제된 토큰들을 명사와 동사/형용사로 분류합니다.
+    """
     nouns = []
     verbs = []
     
     for t in tokens:
-        surface = t.get("surface", "").strip()
+        # 이제 t['lemma']는 '공부하다', '채다' 처럼 완벽한 형태입니다.
+        lemma = t.get("lemma", "").strip()
         pos = t.get("pos", "").strip()
-        lemma = t.get("lemma", surface).strip()
         
-        # 길이 체크
+        # --- 이제 필터링이 아주 간단해집니다 ---
         if len(lemma) < min_len:
             continue
-            
-        # (동사/형용사 위주) 불용어 체크
-        if lemma in STOPWORDS:
+        # 두 종류의 불용어 목록을 한 번에 확인합니다.
+        if lemma in STOPWORDS or lemma in NOUN_STOPWORDS:
             continue
         
-        # 한글이 포함된 단어만 처리
-        if not re.search(r"[가-힣]", lemma):
-            continue
-        
-        # KoNLPy 태그 기준 분류
-        if pos.startswith('Noun'):
-            # --- [변경!] 명사 불용어 목록에 있는지 확인하는 규칙 추가 ---
-            if lemma in NOUN_STOPWORDS:
-                continue
-            
+        # KoNLPy의 정확한 품사 태그를 기준으로 분류합니다.
+        if pos == 'Noun':
             nouns.append(lemma)
-            
-        elif pos.startswith('Verb') or pos.startswith('Adjective'):
+        elif pos == 'Verb' or pos == 'Adjective':
             verbs.append(lemma)
     
     return nouns, verbs
@@ -136,6 +135,7 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 
 
