@@ -177,14 +177,13 @@ STOPWORDS = {
 
 def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
     """
-    - 명사: NN*, NP, NR, SL, SH (외국어, 한자)
-    - 동사/형용사: VV*, VA*
-    - 조사, 어미, 기호, 접미사 등은 명확하게 제외
+    - KO(MeCab-ko) 전용:
+      - 명사: NN* 및 NP/NR (+ SL/SH는 명사 취급)
+      - 동사/형용사: VV*/VA* 만 포함 (VX/VCP/VCN 제외)
+    - 조사/어미/기호/접사 등 제외
+    - 태그가 인식되지 않으면 한글 토큰은 명사로 폴백
     """
-    # [변경 1] 제외할 품사 목록을 더 구체적으로 보강합니다.
-    # J(조사), E(어미), X(접사), S(기호)는 물론,
-    # VCP('이다'), EP(선어말 어미), EC(연결 어미) 등도 명확히 제외합니다.
-    EXCLUDE_POS_PREFIX = ("J", "E", "X", "S", "VCP", "EP", "EC")
+    EXCLUDE_POS_PREFIX = ("J", "E", "SF", "SP", "SS", "SE", "SO", "SW", "X")  # 조사/어미/기호/접사
     EXCLUDE_EXACT = {"UNKNOWN"}
 
     nouns: List[str] = []
@@ -192,43 +191,47 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
 
     for t in tokens:
         lemma = (t.get("lemma") or t.get("surface", "")).strip()
-        pos = (t.get("pos") or "").strip().upper() # 비교를 위해 대문자로 통일
-
+        pos = (t.get("pos") or "").strip()
         if not lemma or lemma == "*":
             continue
 
-        # 1. 제외할 품사인지 먼저 확인합니다.
-        #    startswith는 튜플을 받아서 그 중 하나로 시작하는지 확인할 수 있습니다.
-        if pos in EXCLUDE_EXACT or pos.startswith(EXCLUDE_POS_PREFIX):
+        pos_u = pos.upper()
+
+        # 1) 공통 제외
+        # [변경 1] pass 대신 continue를 사용하여, 제외할 품사는 확실히 건너뛰도록 수정합니다.
+        if pos_u in EXCLUDE_EXACT or pos_u.startswith(EXCLUDE_POS_PREFIX):
             continue
 
-        # 2. 불용어인지 확인합니다.
+        # 2) 불용어
         if lemma in STOPWORDS:
             continue
 
-        # 3. 품사별로 분류합니다.
-        is_noun = pos.startswith("NN") or pos in {"NP", "NR", "SL", "SH"}
-        is_verb_or_adj = pos.startswith("VV") or pos.startswith("VA")
+        # 3) 분류
+        is_noun = pos_u.startswith("NN") or pos_u in {"NP", "NR", "SL", "SH"}
+        is_v = pos_u.startswith("VV")
+        is_a = pos_u.startswith("VA")
 
         if is_noun:
             if len(lemma) >= min_len:
                 nouns.append(lemma)
-        
-        elif is_verb_or_adj:
-            # 어간(lemma) 뒤에 '다'를 붙여 기본형으로 만듭니다.
+            continue
+
+        if is_v or is_a:
+            # 한국어 기본형 보정: '다' 붙이기 (이미 '다'로 끝나면 유지)
             basic_form = lemma
-            # 한글이고 '다'로 끝나지 않을 때만 '다'를 붙입니다.
             if re.search(r"[가-힣]", lemma) and not lemma.endswith("다"):
                 basic_form = lemma + "다"
-            
-            # '다'를 붙인 후에도 불용어인지 한번 더 확인합니다.
             if basic_form in STOPWORDS:
                 continue
-            
             v_adj.append(basic_form)
+            continue
 
-        # [변경 2] 문제가 되었던 마지막 '폴백' 규칙을 완전히 제거합니다.
-        # 이제 명확하게 식별된 명사, 동사, 형용사만 목록에 추가됩니다.
+        # 4) 태그가 애매하거나 비어있을 때의 안전한 폴백:
+        #    한글이 포함되고 길이가 충분하면 명사로 취급
+        # [변경 2] 동사/형용사로 보이는 단어는 이 규칙에서 제외하도록 조건을 추가합니다.
+        #          (예: '사랑하' 처럼 '하'로 끝나는 단어 등)
+        if not (lemma.endswith("하") or lemma.endswith("되")) and re.search(r"[가-힣]", lemma) and len(lemma) >= min_len:
+            nouns.append(lemma)
 
     return nouns, v_adj
 
