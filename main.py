@@ -280,12 +280,15 @@ def analyze_options():
 # ------------------ Static Files ------------------
 
 
-app.mount("/static", StaticFiles(directory="."), name="static")
+STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# 2. /static 경로 요청이 오면, 위에서 찾은 절대 경로(STATIC_DIR)에서 파일을 찾도록 설정합니다.
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# 3. 루트 경로 요청 시, 절대 경로를 이용해 index.html 파일을 정확히 지정합니다.
 @app.get("/")
 def root():
-    return FileResponse("index.html")
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 # 간단한 헬스체크
 @app.get("/ping")
