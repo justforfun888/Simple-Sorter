@@ -173,8 +173,6 @@ STOPWORDS = {
 
 
 
-# main.py 파일의 filter_and_bucket 함수를 아래 내용으로 교체해주세요.
-
 def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
     """
     - KO(MeCab-ko) 전용:
@@ -198,9 +196,9 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
         pos_u = pos.upper()
 
         # 1) 공통 제외
-        # [변경 1] pass 대신 continue를 사용하여, 제외할 품사는 확실히 건너뛰도록 수정합니다.
         if pos_u in EXCLUDE_EXACT or pos_u.startswith(EXCLUDE_POS_PREFIX):
-            continue
+            # 주의: SL/SH/SN은 여기서 걸러지지 않음 (S 단일 프리픽스 사용 안 함)
+            pass
 
         # 2) 불용어
         if lemma in STOPWORDS:
@@ -228,9 +226,7 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
 
         # 4) 태그가 애매하거나 비어있을 때의 안전한 폴백:
         #    한글이 포함되고 길이가 충분하면 명사로 취급
-        # [변경 2] 동사/형용사로 보이는 단어는 이 규칙에서 제외하도록 조건을 추가합니다.
-        #          (예: '사랑하' 처럼 '하'로 끝나는 단어 등)
-        if not (lemma.endswith("하") or lemma.endswith("되")) and re.search(r"[가-힣]", lemma) and len(lemma) >= min_len:
+        if re.search(r"[가-힣]", lemma) and len(lemma) >= min_len:
             nouns.append(lemma)
 
     return nouns, v_adj
