@@ -229,4 +229,5 @@ def analyze_api(inp: TextIn):
 
 
 
-# app.mount("/", StaticFiles(directory="."), html=True, name="static")
+
+app.mount("/", StaticFiles(directory="."), html=True, name="static")
