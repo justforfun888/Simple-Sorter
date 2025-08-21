@@ -133,6 +133,7 @@
     <script>
       let filterWords = [];
       let minFrequency = 5;
+      const API_BASE = (location.protocol === 'file:' ? 'http://localhost:8000' : '');
 
       function addFilter() {
         const input = document.getElementById('filterInput');
@@ -212,7 +213,7 @@ function setMinFrequency() {
           return;
         }
         try {
-          const response = await fetch("/analyze", {
+          const response = await fetch(`${API_BASE}/analyze`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"

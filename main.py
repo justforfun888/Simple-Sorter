@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
@@ -25,8 +26,10 @@ DEFAULT_DICDIR = os.environ.get("MECAB_DICDIR", "")
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True,
-    allow_methods=["*"], allow_headers=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class TextIn(BaseModel):
@@ -248,3 +251,12 @@ def analyze_api(inp: TextIn):
         "nouns": freq_list(nouns, inp.min_freq),
         "verbs": freq_list(v_adj, inp.min_freq)  # 동사/형용사
     }
+
+# ------------------ Static Files ------------------
+# API 라우트보다 뒤에 마운트하여 "/analyze"가 우선 처리되도록 합니다.
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+# 간단한 헬스체크
+@app.get("/ping")
+def ping():
+    return {"ok": True}
