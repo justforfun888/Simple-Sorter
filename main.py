@@ -69,9 +69,7 @@ def analyze_with_okt(text: str) -> List[Dict[str, str]]:
         i += 1
             
     return tokens
-    except Exception as e:
-        print(f"KoNLPy 분석 실패: {e}")
-        return []
+
 
 
 # main.py 파일의 filter_and_bucket_okt 함수를 아래 내용으로 교체해주세요.
@@ -135,6 +133,7 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 
 
