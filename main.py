@@ -101,9 +101,21 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
         for row in reader:
             if not row:
                 continue
+            # 일부 환경에서 EOS 라인이 포함될 수 있음
+            if row[0].strip() == "EOS":
+                continue
             
             surface = (row[0] or "").strip()
-            lemma = (row[7] or "").strip() if len(row) > 7 and row[7] != "*" else surface
+            # 다양한 사전 포맷을 고려한 lemma 추출: mecab-ko(7), IPADIC(6) 등
+            lemma = ""
+            for idx in (7, 6):
+                if len(row) > idx and row[idx] and row[idx] != "*":
+                    lemma = row[idx].strip()
+                    break
+            if not lemma:
+                lemma = surface
+
+            # POS는 일반적으로 1번째 칼럼이 상위 품사(coarse POS)
             pos = (row[1] or "").strip() if len(row) > 1 else ""
 
             if not surface: continue
@@ -141,7 +153,7 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
 
     for t in tokens:
         lemma = (t.get("lemma") or t.get("surface", "")).strip()
-        pos = t.get("pos", "").strip()
+        pos = (t.get("pos", "") or "").strip()
 
         if not lemma or lemma == "*":
             continue
@@ -152,10 +164,28 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
         if lemma in STOPWORDS:
             continue
 
-        if pos.startswith("NN"):
+        # 배포 환경별 품사 태그 보정: 한국어(예: NNG/NNP, VV/VA) + 일반 한글 태그(명사/동사/형용사) + 일본어(名詞/動詞/形容詞)
+        pos_lower = pos.lower()
+        is_noun = (
+            pos.startswith("NN")
+            or ("명사" in pos)
+            or ("名詞" in pos)
+        )
+        is_verb = (
+            pos.startswith("VV")
+            or ("동사" in pos)
+            or ("動詞" in pos)
+        )
+        is_adj = (
+            pos.startswith("VA")
+            or ("형용사" in pos)
+            or ("形容詞" in pos)
+        )
+
+        if is_noun:
             if len(lemma) >= min_len:
                 nouns.append(lemma)
-        elif pos.startswith("VV") or pos.startswith("VA"):
+        elif is_verb or is_adj:
             basic_form = lemma + "다"
             if basic_form in STOPWORDS:
                 continue
@@ -172,6 +202,20 @@ def freq_list(words: List[str], min_count: int):
         key=lambda x: x[1], reverse=True
     )
 
+def _fallback_nouns(text: str, min_len: int = 2) -> List[str]:
+    """MeCab 결과가 비거나 품사 매핑 실패 시, 한글만 기반으로 간단 추출.
+    - 연속 한글(가-힣) min_len 이상을 단어로 간주
+    - STOPWORDS 제거
+    """
+    # 한글 시퀀스 추출
+    pattern = re.compile(rf"[가-힣]{{{min_len},}}")
+    candidates = pattern.findall(text or "")
+    results: List[str] = []
+    for w in candidates:
+        if w and w not in STOPWORDS:
+            results.append(w)
+    return results
+
 # ------------------ API (이 부분은 수정 없음) ------------------
 
 @app.post("/analyze")
@@ -179,10 +223,15 @@ def analyze_api(inp: TextIn):
     try:
         tokens = mecab_parse(inp.text)
         nouns, v_adj = filter_and_bucket(tokens, min_len=2)
-        return {
-            "nouns": freq_list(nouns, inp.min_freq),
-            "verbs": freq_list(v_adj, inp.min_freq)
-        }
+        nouns_freq = freq_list(nouns, inp.min_freq)
+        verbs_freq = freq_list(v_adj, inp.min_freq)
+
+        # 폴백: 두 리스트가 모두 비면 간단 명사 추출로 최소 결과 제공
+        if not nouns_freq and not verbs_freq:
+            fb_nouns = _fallback_nouns(inp.text, min_len=2)
+            nouns_freq = freq_list(fb_nouns, inp.min_freq)
+
+        return {"nouns": nouns_freq, "verbs": verbs_freq}
     except Exception as e:
         # 프론트가 항상 JSON을 받도록 보장합니다.
         return JSONResponse(status_code=500, content={"error": str(e)})
