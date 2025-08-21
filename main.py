@@ -229,18 +229,4 @@ def analyze_api(inp: TextIn):
 
 
 
-# ------------------ 웹페이지 제공 (프론트엔드) ------------------
-
-# 1. 이 파이썬 파일(main.py)이 있는 폴더의 절대 경로를 찾습니다.
-#    Render 서버가 어디서 실행되든, 항상 정확한 경로를 보장하는 방법입니다.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# 2. 루트 경로("/")로 GET 요청이 오면, index.html 파일을 보여주도록 규칙을 정합니다.
-@app.get("/", response_class=FileResponse)
-def read_root():
-    # BASE_DIR 경로에 있는 "index.html" 파일을 반환합니다.
-    return os.path.join(BASE_DIR, "index.html")
-
-# 3. /static 이라는 가상 경로를 만들고, 실제 파일은 BASE_DIR 폴더에서 찾도록 설정합니다.
-#    CSS, 이미지, JS 파일 등을 위해 반드시 필요합니다.
-app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
+# app.mount("/", StaticFiles(directory="."), html=True, name="static")
