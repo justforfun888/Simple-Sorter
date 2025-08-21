@@ -6,7 +6,6 @@ from fastapi.staticfiles import StaticFiles
 import subprocess
 from typing import List, Dict, Tuple
 import os
-os.system('chcp 65001 > nul')
 import re
 import csv
 from io import StringIO
@@ -30,6 +29,25 @@ class TextIn(BaseModel):
     min_freq: int = 5  # 프런트 기본값과 맞춤
 
 # ------------------ MeCab 환경/인코딩 ------------------
+
+def _run(args: List[str], text: str, charset: str) -> subprocess.CompletedProcess:
+    """UTF-8 환경에서 MeCab 실행"""
+    try:
+        # Windows에서 UTF-8 환경 변수 설정
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        
+        return subprocess.run(
+            args,
+            input=text,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors="ignore",
+            env=env  # 환경 변수 전달
+        )
+    except Exception as e:
+        return subprocess.CompletedProcess(args=args, returncode=1, stdout="", stderr=str(e))
 
 def _mecab_info() -> Tuple[str, str]:
     """mecab -D 출력에서 (dicdir, charset)을 추출 (실패 시 기본값)."""
@@ -265,3 +283,4 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
