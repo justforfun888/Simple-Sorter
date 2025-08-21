@@ -10,15 +10,11 @@ import re
 import csv
 from io import StringIO
 
-# ---------------------------------------------------------
-# 전제:
-# 1) MECABRC = C:\mecab\etc\mecabrc  (시스템 환경변수 권장)
-# 2) mecabrc의 dicdir = C:\mecab\mecab-ko-dic
-# 3) PATH에 C:\mecab\bin 포함 (mecab.exe 호출 가능)
-# ---------------------------------------------------------
-MECAB_BIN = "mecab"
-MECABRC = os.environ.get("MECABRC", r"C:\mecab\etc\mecabrc")
-DEFAULT_DICDIR = r"C:\mecab\mecab-ko-dic"
+# --- [변경 1] 윈도우 전용 경로 변수 모두 제거 ---
+# Docker 컨테이너 안에 설치된 mecab의 절대 경로를 직접 지정합니다.
+MECAB_BIN = "/usr/bin/mecab"
+# Render(리눅스) 환경에서는 mecabrc 파일 경로를 지정할 필요가 없으므로,
+# 관련 변수들을 모두 제거하여 윈도우 의존성을 없앱니다.
 
 app = FastAPI()
 app.add_middleware(
@@ -31,35 +27,24 @@ class TextIn(BaseModel):
     text: str
     min_freq: int = 5  # 프런트 기본값과 맞춤
 
-# ------------------ MeCab 환경/인코딩 ------------------
+# --- [변경 2] MeCab 환경 관련 함수들을 Docker에 맞게 아주 단순하게 변경 ---
 
 def _mecab_info() -> Tuple[str, str]:
-    """mecab -D 출력에서 (dicdir, charset)을 추출 (실패 시 기본값)."""
-    try:
-        proc = subprocess.run(
-            [MECAB_BIN, "-D", "-r", MECABRC],
-            capture_output=True, text=True, encoding="utf-8", errors="ignore"
-        )
-        out = proc.stdout or ""
-        dicdir = DEFAULT_DICDIR
-        charset = "utf-8"
+    """
+    Render Docker 환경에서는 mecab -D로 정보를 확인할 필요 없이,
+    기본값(utf-8)을 사용하도록 단순화합니다.
+    """
+    return None, "utf-8"
 
-        m_dic = re.search(r"dicdir:\s*(.+)", out)
-        if m_dic:
-            dicdir = m_dic.group(1).strip()
-
-        m_cs = re.search(r"charset:\s*([^\s]+)", out, re.IGNORECASE)
-        if m_cs:
-            cs = m_cs.group(1).strip().lower()
-            if cs in ("utf-8", "utf8"):
-                charset = "utf-8"
-            elif cs in ("euc-kr", "cp949", "cp-949", "ks_c_5601-1987"):
-                charset = "cp949"
-            else:
-                charset = "utf-8"
-        return dicdir, charset
-    except Exception:
-        return DEFAULT_DICDIR, "utf-8"
+def _mecab_args_base() -> Tuple[List[str], str]:
+    """
+    Render Docker 환경에 맞게 mecab 실행 인자를 구성합니다.
+    -d (사전 경로)나 -r (설정 파일) 없이 기본 mecab을 호출합니다.
+    """
+    dicdir, charset = _mecab_info()
+    args = [MECAB_BIN]
+    # Docker에 설치된 기본 사전을 사용하므로 -d, -r 옵션이 필요 없습니다.
+    return args, charset
 
 def _run(args: List[str], text: str, encoding: str) -> subprocess.CompletedProcess:
     return subprocess.run(
@@ -73,9 +58,9 @@ def _run(args: List[str], text: str, encoding: str) -> subprocess.CompletedProce
 
 def _mecab_run_csv(text: str) -> str:
     """CSV 포맷(-O csv)으로 실행. 실패 시 예외."""
-    dicdir, charset = _mecab_info()
-    args = [MECAB_BIN, "-O", "csv", "-r", MECABRC, "-d", dicdir]
-    proc = _run(args, text, charset)
+    # [변경 3] 복잡한 인자 생성 대신, 단순화된 _mecab_args_base 함수 사용
+    args_base, charset = _mecab_args_base()
+    proc = _run(args_base + ["-O", "csv"], text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"csv-failed: code={proc.returncode}\n{proc.stderr}")
     return proc.stdout
@@ -85,15 +70,15 @@ def _mecab_run_tsv(text: str) -> str:
     사용자 포맷(-F)으로 TSV 강제.
     컬럼: surface \t pos \t lemma
     """
-    dicdir, charset = _mecab_info()
+    # [변경 4] 여기도 마찬가지로 단순화된 함수 사용
+    args_base, charset = _mecab_args_base()
     fmt = "%m\t%f[0]\t%f[6]\n"   # 표면형, 품사, 원형
-    args = [MECAB_BIN, "-r", MECABRC, "-d", dicdir, "-F", fmt, "-E", "EOS\n"]
-    proc = _run(args, text, charset)
+    proc = _run(args_base + ["-F", fmt, "-E", "EOS\n"], text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"tsv-failed: code={proc.returncode}\n{proc.stderr}")
     return proc.stdout
 
-# ------------------ 파싱/분류/집계 ------------------
+# ------------------ 파싱/분류/집계 (이 부분은 수정 없음) ------------------
 
 def mecab_parse(text: str) -> List[Dict[str, str]]:
     """
@@ -117,8 +102,6 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
                 continue
             
             surface = (row[0] or "").strip()
-            # CSV 출력에서 원형(lemma)은 8번째 열(인덱스 7)에 있습니다.
-            # 없을 경우 표면형(surface)을 대신 사용합니다.
             lemma = (row[7] or "").strip() if len(row) > 7 and row[7] != "*" else surface
             pos = (row[1] or "").strip() if len(row) > 1 else ""
 
@@ -127,7 +110,6 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
             tokens.append({"surface": surface, "pos": pos, "lemma": lemma})
 
     else:  # used == "tsv"
-        # 한 줄: surface \t pos \t lemma
         for line in raw.splitlines():
             if not line or line == "EOS":
                 continue
@@ -137,8 +119,6 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
             
             surface = parts[0].strip()
             pos = parts[1].strip()
-            # TSV 출력에서 원형(lemma)은 3번째 부분(인덱스 2)에 있습니다.
-            # 없을 경우 표면형(surface)을 대신 사용합니다.
             lemma = parts[2].strip() if len(parts) > 2 and parts[2].strip() != "*" else surface
 
             if not surface: continue
@@ -147,20 +127,11 @@ def mecab_parse(text: str) -> List[Dict[str, str]]:
 
     return tokens
 
-# UI 요구: 명사 vs 동사·형용사 두 버킷
 STOPWORDS = {
     "이다","하다","없다","있다","보다","되다","들다","자다","말다","오다","가다","주다","되어다"
 }
 
-# main.py 파일의 filter_and_bucket 함수를 아래 내용으로 교체해주세요.
-
-
 def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
-    """
-    - 명사: POS startswith 'NN'
-    - 동사/형용사: POS startswith 'VV' or 'VA'
-    - 조사/어미/기호/접사 등은 제외
-    """
     EXCLUDE_POS_PREFIX = ("J", "E", "X", "S", "F")
     EXCLUDE_EXACT = {"UNKNOWN"}
 
@@ -168,39 +139,25 @@ def filter_and_bucket(tokens: List[Dict[str, str]], min_len: int = 2):
     v_adj: List[str] = []
 
     for t in tokens:
-        # lemma가 비어있을 경우를 대비해 surface를 사용
         lemma = (t.get("lemma") or t.get("surface", "")).strip()
         pos = t.get("pos", "").strip()
 
-        # 1. 기본적인 필터링 (단어가 없거나, 제외할 품사인 경우)
         if not lemma or lemma == "*":
             continue
         if pos in EXCLUDE_EXACT or pos.startswith(EXCLUDE_POS_PREFIX):
             continue
-        
-        # 2. 단어 자체가 품사 태그처럼 생긴 경우 제외 (NNB, JX 등)
         if lemma.isupper() and 2 <= len(lemma) <= 4:
             continue
-        
-        # 3. 불용어(stopwords) 처리
         if lemma in STOPWORDS:
             continue
 
-        # 4. 품사별로 분류 및 최종 가공
-        if pos.startswith("NN"):  # 명사 처리
+        if pos.startswith("NN"):
             if len(lemma) >= min_len:
                 nouns.append(lemma)
-        
-        elif pos.startswith("VV") or pos.startswith("VA"):  # 동사/형용사 처리
-            # ##### 여기가 핵심! #####
-            # 어간(lemma) 뒤에 '다'를 붙여 기본형으로 만들어줍니다.
-            # 예: '하' -> '하다', '없' -> '없다'
+        elif pos.startswith("VV") or pos.startswith("VA"):
             basic_form = lemma + "다"
-            
-            # 불용어 목록에 기본형이 있는지도 한번 더 확인합니다.
             if basic_form in STOPWORDS:
                 continue
-            
             v_adj.append(basic_form)
 
     return nouns, v_adj
@@ -214,31 +171,16 @@ def freq_list(words: List[str], min_count: int):
         key=lambda x: x[1], reverse=True
     )
 
-# ------------------ API ------------------
+# ------------------ API (이 부분은 수정 없음) ------------------
 
 @app.post("/analyze")
 def analyze_api(inp: TextIn):
-
     tokens = mecab_parse(inp.text)
-
-    print("--- [단계 1] Mecab이 분석한 원본 데이터 ---")
-    print(tokens)
-
-
-    # 2. 분석된 결과에서 필요한 단어만 골라냅니다.
     nouns, v_adj = filter_and_bucket(tokens, min_len=2)
-
-
-    print("--- [단계 2] 필터링 후 살아남은 단어 목록 ---")
-    print("명사 목록:", nouns)
-    print("동사/형용사 목록:", v_adj)
-
-
-
     return {
         "nouns": freq_list(nouns, inp.min_freq),
         "verbs": freq_list(v_adj, inp.min_freq) 
     }
 
-
+# --- [변경 5] 괄호 오류를 수정한, 최종 웹페이지 서빙 코드 ---
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
