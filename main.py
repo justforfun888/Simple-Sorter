@@ -10,15 +10,12 @@ import re
 import csv
 from io import StringIO
 
-# ---------------------------------------------------------
-# 전제:
-# 1) MECABRC = C:\mecab\etc\mecabrc  (시스템 환경변수 권장)
-# 2) mecabrc의 dicdir = C:\mecab\mecab-ko-dic
-# 3) PATH에 C:\mecab\bin 포함 (mecab.exe 호출 가능)
-# ---------------------------------------------------------
-MECAB_BIN = "mecab"
-MECABRC = os.environ.get("MECABRC", r"C:\mecab\etc\mecabrc")
-DEFAULT_DICDIR = r"C:\mecab\mecab-ko-dic"
+
+import shutil
+
+MECAB_BIN = shutil.which("mecab") or "mecab"
+MECABRC = os.environ.get("MECABRC")
+ENV_DICDIR = os.environ.get("MECAB_DICDIR")
 
 app = FastAPI()
 app.add_middleware(
@@ -36,12 +33,12 @@ class TextIn(BaseModel):
 def _mecab_info() -> Tuple[str, str]:
     """mecab -D 출력에서 (dicdir, charset)을 추출 (실패 시 기본값)."""
     try:
-        proc = subprocess.run(
-            [MECAB_BIN, "-D", "-r", MECABRC],
-            capture_output=True, text=True, encoding="utf-8", errors="ignore"
-        )
+        cmd = [MECAB_BIN, "-D"]
+        if MECABRC:
+            cmd += ["-r", MECABRC]
+        proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore")
         out = proc.stdout or ""
-        dicdir = DEFAULT_DICDIR
+        dicdir = None
         charset = "utf-8"
 
         m_dic = re.search(r"dicdir:\s*(.+)", out)
@@ -57,24 +54,38 @@ def _mecab_info() -> Tuple[str, str]:
                 charset = "cp949"
             else:
                 charset = "utf-8"
-        return dicdir, charset
+        return dicdir or "", charset
     except Exception:
-        return DEFAULT_DICDIR, "utf-8"
+        return "", "utf-8"
 
-def _run(args: List[str], text: str, encoding: str) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        args,
-        input=text,
-        capture_output=True,
-        text=True,
-        encoding=encoding,
-        errors="replace",
-    )
+def _run(args: List[str], text: str, charset: str) -> subprocess.CompletedProcess:
+    """
+    MeCab 실행 헬퍼: 입력 텍스트를 지정 인코딩으로 전달하고 결과를 같은 인코딩으로 반환.
+    예외는 삼켜서 호출부에서 returncode와 stderr로 판단 가능하게 함.
+    """
+    try:
+        return subprocess.run(
+            args,
+            input=text,
+            capture_output=True,
+            text=True,
+            encoding=charset,
+            errors="ignore"
+        )
+    except Exception as e:
+        return subprocess.CompletedProcess(args=args, returncode=1, stdout="", stderr=str(e))
 
 def _mecab_run_csv(text: str) -> str:
     """CSV 포맷(-O csv)으로 실행. 실패 시 예외."""
-    dicdir, charset = _mecab_info()
-    args = [MECAB_BIN, "-O", "csv", "-r", MECABRC, "-d", dicdir]
+    detected_dicdir, charset = _mecab_info()
+    dicdir = ENV_DICDIR or (detected_dicdir if detected_dicdir else None)
+
+    args = [MECAB_BIN, "-O", "csv"]
+    if MECABRC:
+        args += ["-r", MECABRC]
+    if dicdir:
+        args += ["-d", dicdir]
+
     proc = _run(args, text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"csv-failed: code={proc.returncode}\n{proc.stderr}")
@@ -85,9 +96,16 @@ def _mecab_run_tsv(text: str) -> str:
     사용자 포맷(-F)으로 TSV 강제.
     컬럼: surface \t pos \t lemma
     """
-    dicdir, charset = _mecab_info()
+    detected_dicdir, charset = _mecab_info()
+    dicdir = ENV_DICDIR or (detected_dicdir if detected_dicdir else None)
+
     fmt = "%m\t%f[0]\t%f[6]\n"   # 표면형, 품사, 원형
-    args = [MECAB_BIN, "-r", MECABRC, "-d", dicdir, "-F", fmt, "-E", "EOS\n"]
+    args = [MECAB_BIN, "-F", fmt, "-E", "EOS\n"]
+    if MECABRC:
+        args += ["-r", MECABRC]
+    if dicdir:
+        args += ["-d", dicdir]
+
     proc = _run(args, text, charset)
     if proc.returncode != 0 or not proc.stdout.strip():
         raise RuntimeError(f"tsv-failed: code={proc.returncode}\n{proc.stderr}")
