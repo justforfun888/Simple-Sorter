@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
 from typing import List, Dict, Tuple
@@ -224,3 +225,20 @@ def analyze_api(inp: TextIn):
         "nouns": freq_list(nouns, inp.min_freq),
         "verbs": freq_list(v_adj, inp.min_freq)  # 동사/형용사
     }
+
+
+
+# ------------------ 웹페이지 제공 (프론트엔드) ------------------
+
+# 1. 이 파이썬 파일(main.py)이 있는 폴더의 절대 경로를 찾습니다.
+#    Render 서버가 어디서 실행되든, 항상 정확한 경로를 보장하는 방법입니다.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. 루트 경로("/")로 GET 요청이 오면, index.html 파일을 보여주도록 규칙을 정합니다.
+@app.get("/", response_class=FileResponse)
+def read_root():
+    return os.path.join(BASE_DIR, "index.html")
+
+# 3. /static 경로 아래의 파일들을 제공하기 위한 설정입니다.
+#    (CSS, 이미지 파일 등을 위해 필요합니다.)
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR)), name="static")
