@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 import subprocess
 from typing import List, Dict, Tuple
 import os
+os.system('chcp 65001 > nul')
 import re
 import csv
 from io import StringIO
