@@ -120,7 +120,7 @@ def analyze_api(inp: TextIn):
     tokens = analyze_with_okt(inp.text)
     
     print("--- [단계 1] Okt가 분석한 원본 데이터 ---")
-    print(tokens[:10])  # 처음 10개만 출력
+    print(tokens)
     
     # 필터링 및 분류
     nouns, verbs = filter_and_bucket_okt(tokens, min_len=2)
@@ -136,6 +136,7 @@ def analyze_api(inp: TextIn):
 
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 
 
