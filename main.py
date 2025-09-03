@@ -6,7 +6,6 @@ from fastapi.staticfiles import StaticFiles
 from typing import List, Dict
 import re
 from konlpy.tag import Okt
-import os
 
 app = FastAPI()
 app.add_middleware(
@@ -143,22 +142,4 @@ def get_stats():
         print(f"통계 읽기 오류: {e}")
         return JSONResponse(status_code=500, content={"error": "통계 파일을 읽을 수 없습니다."})
 
-app.mount("/", StaticFiles(directory="."), name="static")
-
-@app.exception_handler(404)
-async def not_found_exception_handler(request, exc):
-
-    path = request.url.path
-    
-
-    if "." not in path:
-
-        file_path = os.path.join(".", path.lstrip("/") + ".html")
-        
-
-        if os.path.exists(file_path):
-
-            return FileResponse(file_path)
-            
-
-    return JSONResponse(status_code=404, content={"detail": "Not Found"})
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
