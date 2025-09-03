@@ -1,96 +1,178 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Sorter - How to use</title>
-
-
-  <link rel="stylesheet" as="style" crossorigin
-    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-
-
-  <link rel="stylesheet" href="usage.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>단어 빈도 분석기</title>
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/usage.css" />
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="mask-icon" href="/images/logo.svg" color="#111111">
 </head>
 <body>
+    <div class="usage-container">
+        <div class="header">
+            <div class="button-group">
+                <button class="home-btn" onclick="window.location.href='/'">
+                    <img src="/images/home.svg" alt="Home">
+                </button>
+                <div class="mode-toggle" onclick="toggleMode()">
+                    <div class="toggle-indicator"></div>
+                    <div class="toggle-option light">
+                        <img src="/images/light.svg" alt="Light Mode">
+                    </div>
+                    <div class="toggle-option dark">
+                        <img src="/images/dark.svg" alt="Dark Mode">
+                    </div>
+                </div>
+            </div>
 
-  <a href="index.html" class="home-btn">
-    <img src="images/home.svg" alt="main">
-  </a>
-
-
-  <div class="usage-container">
-    <h1>창작자를 위한 단어 빈도 분석기</h1>
-<h3>자신이 무심코 반복하는 단어를 찾아주고, 문체를 더 풍부하게 다듬을 수 있도록 도와줍니다.</h3>
-
-<section class="usage-section write">
-  <div class="usage-content">
- 
-    <div class="icon-placeholder">
-      <img class="icon-write" src="images/write.svg">
-    </div>
-    <div class="usage-text">
-      <h2>글쓰기 패턴 분석</h2>
-      <p>텍스트를 <b>명사, 동사/형용사</b>로 분류하여 사용 빈도를 계산합니다.</p>
-      <p>
-        등장인물 이름 등 불필요한 단어는 
-        <img class="icon-filter" src="images/filter.svg"> 
-        필터로 제외할 수 있습니다.
-      </p>
-    </div>
-  </div>
-</section>
-
-
-<section class="usage-section users">
-  <div class="usage-content">
-    <div class="icon-placeholder">
-      <img class="icon-users" src="images/users.svg">
-    </div>
-    <div class="usage-text">
-        <h2>추천 대상</h2>
-        <p>웹소설, 에세이 등 창작 글쓰기에서 더 <b>다채로운 문체</b>를 만들고 싶은 분들.</p>
-        <p>그냥 내 글쓰기 습관이 궁금하신 분들.</p>
-      </div>
-    </div>
-    </section>
-
-    <section class="usage-section inno">
-      <div class="usage-content">
-        <div class="icon-placeholder">
-          <img class="icon-inno" src="images/inno.svg">
         </div>
-        <div class="usage-text">
-        <h2>활용 팁</h2>
-        <p><b>자주 쓰는 단어</b>를 확인해 문장이 단조로워지지 않게 하기.</p>
-        <p>나의 동사·형용사 사용 패턴을 파악해 <b>표현의 폭 넓히기.</b></p>
-        <p>여러 글을 비교해보며 변화를 기록하기.</p>
-      </div>
-      </div>
-    </section>
+        <div class="start-section">
+            
+            <h2 class="start-title">복잡한 건 다 빼고, 결과만</h2>
+            <div class="start-subtext">
+                <span>내 문체의 다양성을 높이고 싶을 때</span>
+                <span>같은 단어만 반복하는 느낌이 들 때</span>
+              </div>
+        </div>
+        <div class="intro-text">
+            
+        </div>
 
-    <section class="menu-guide">
-      <img src="images/menu.svg" alt="메뉴 설명 가이드">
-    </section>
-    
+        <div class="feature-cards">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <img src="/images/write.svg" alt="글쓰기 패턴 분석">
+                </div>
+                <div class="feature-content">
+                    <h3>글쓰기 패턴 분석</h3>
+                    <p>텍스트를 <b>명사, 동사/형용사</b>로 분류하여<br>사용 빈도를 계산합니다.</p>
+                    <p>등장인물 이름 등 불필요한 단어는 <br><img src="/images/filter.svg" alt="Filter"><b>필터</b>로 제외할 수 있습니다.</p>
+                </div>
+            </div>
 
-    
-  </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <img src="/images/users.svg" alt="추천 대상">
+                </div>
+                <div class="feature-content">
+                    <h3>추천 대상</h3>
+                    <p>웹소설, 에세이 등 창작 글쓰기에서<br> 더 <b>다채로운 문체</b>를 만들고 싶은 분들.</p>
+                    <p><b>그냥</b> 내 글쓰기 습관이 궁금하신 분들.</p>
+                </div>
+            </div>
+        </div>
 
-  <script>
+        <div class="tips-section">
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
-        document.body.classList.add("dark");
-      }
-    });
-    
-    
+
+
+
+            <div class="tip-mac-window">
+                <div class="tip-mac-header">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                </div>
+              
+                <div class="tip-mac-body">
+            <div class="tips-grid">
+                <h2 class="tips-title">분석 결과를 활용해 보세요</h2>
+                <div class="tip-item">
+                    
+                    <div class="tip-header">
+                        
+                        <span class="tip-step">STEP 1</span>
+                        <span class="tip-title">반복 단어 파악하기</span>
+                    </div>
+                    <div class="tip-desc">
+                        <p><b>자주 쓰는 단어</b>를 확인해 문장이 단조로워지지 않게 하기.</p>
+                        <p>나의 단어 사용 패턴을 파악해 <b>표현의 폭 넓히기.</b></p>
+                    </div>
+                </div>
+            
+                <div class="tip-item">
+                    <div class="tip-header">
+                        <span class="tip-step">STEP 2</span>
+                        <span class="tip-title">유의어 사전 활용하기</span>
+                    </div>
+                    <div class="tip-desc">
+                        <p>반복되는 단어를 더 생동감 있는 표현으로 바꿔보세요.</p>
+                        <p>감정 표현과 동사만 바꿔도 문장의 질감이 달라집니다.</p>
+                    </div>
+                </div>
+            
+                <div class="tip-item">
+                    <div class="tip-header">
+                        <span class="tip-step">STEP 3</span>
+                        <span class="tip-title">루틴으로 만들기</span>
+                    </div>
+                    <div class="tip-desc">
+                        <p>하루치 분량을 다 쓴 후 마지막에 <b>분석하는 습관 들이기.</b></p>
+                        <p>꾸준한 점검으로 자연스럽게 문체가 개선됩니다.</p>
+                    </div>
+                </div>
+            
+                <div class="tip-item">
+                    <div class="tip-header">
+                        <span class="tip-step">STEP 4</span>
+                        <span class="tip-title">변화 기록하기</span>
+                    </div>
+                    <div class="tip-desc">
+                        <p>여러 글을 비교해보며 <b>성장 과정 기록하기.</b></p>
+                        <p>점차 늘어나는 어휘의 다양성을 확인할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+
+
+    </div>  
+</div>     
+    </div>
+
+    <footer class="site-footer">
+        <p>© 2025 SimpleSorter &nbsp;
+            <a href="privacy.html">개인정보처리방침</a> · 
+            <a href="terms.html">이용약관</a>
+        </p>
+    </footer>
+
+    <script>
+        function toggleMode() {
+            document.body.classList.toggle("dark");
+            const isDark = document.body.classList.contains("dark");
+            setCookie("theme", isDark ? "dark" : "light", 365);
+        }
+
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = getCookie("theme");
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark");
+            }
+        });
+
+
+        
     </script>
-
-
-
-
 </body>
 </html>

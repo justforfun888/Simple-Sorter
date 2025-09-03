@@ -1,244 +1,596 @@
-body {
-    margin: 0;
-    padding: 100px 20px;
-    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
-      system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
-      "Noto Sans KR", "Malgun Gothic", sans-serif;
-    background: #fff;
-    color: #111;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .usage-container {
-    max-width: 800px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-  }
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1px;
-    margin-top: 100px;
-  }
-  
-  h3 {
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #2b2b2b;
-    padding: 20px;
-    border-top: 1px solid #dfdfdf;
-    border-bottom: 1px solid #dfdfdf;
-    margin: 0 auto 30px auto;
-    margin-top: 20px;
-    max-width: 650px;
 
-  }
+* {
+  box-sizing: border-box;
+}
 
-  .home-btn {
-    position: fixed;
-    top: 30px;
-    left: 30px;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 0.5rem;
-    background: #fbfbfb;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-    padding: 0;
-    z-index: 1000;
-  }
-  
-  .home-btn img {
-    width: 24px;
-    height: 24px;
-  }
-  
 
-  
-  .usage-section {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
-    justify-content: center;
-    min-height: 70px;
-    margin-left: 40px;
-  }
-  
-  
-  .usage-section:last-child {
-    border-bottom: none;
-  }
-  
-  .usage-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    max-width: 600px;
-    width: 100%;
-    text-align: left;
-  }
-  
-  .icon-placeholder {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .icon-placeholder img {
-    max-width: 30px;
-    height: auto;
-  }
-  
-  .icon-write {
-    content: url("images/write.svg");
-    max-width: 30px;
-    height: auto;
-  }
-  
-  .icon-filter {
-    content: url("images/filter.svg");
-    max-width: 23px;
-    height: auto;
-    vertical-align: text-top;
-    margin-top: -1px;
-  }
-  
-  .icon-users {
-    content: url("images/users.svg");
-    max-width: 30px;
-    height: auto;
-  }
-  
-  .icon-inno {
-    content: url("images/inno.svg");
-    max-width: 30px;
-    height: auto;
-  }
-  
-  .usage-text h2 {
-    margin: 0 0 6px 0;
-    font-size: 20px;
-    font-weight: 700;
-    opacity: 0;
-  transform: translateY(15px);
-  animation: fadeInUp 1.0s ease forwards;
-  }
-  
-  .usage-text p {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1.6;
-    color: #444;
-    max-width: 600px; 
-    opacity: 0;
-  transform: translateY(15px);
-  animation: fadeInUp 1.0s ease forwards;
-  }
 
-  .usage-text {
-    min-height: 80px;
-    max-height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+/* Header 스타일 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 74px;
+}
 
-  body.dark {
-    background: #212121;
-    color: #fff;
+.page-title {
+  text-align: center;
+  flex: 1;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111;
+}
+
+/* 홈 버튼 */
+.home-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbfbfb;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+  3px 3px 6px rgba(0, 0, 0, 0.08), -3px -3px 6px rgba(255, 255, 255, 0.70);
+}
+
+.home-btn img {
+  width: 25px;
+}
+
+
+
+.home-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 4px 4px 8px rgba(163, 177, 198, 0.3),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+}
+
+/* 모드 토글 */
+.mode-toggle {
+  position: fixed;
+  top: 22px;
+  right: 20px;
+  width: 70px;
+  height: 37px;
+  border-radius: 25px;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow:
+    inset 4px 4px 8px rgba(163, 177, 198, 0.2),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+}
+
+.toggle-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    4px 4px 8px rgba(163, 177, 198, 0.3),
+    -4px -4px 8px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  z-index: 0;
+}
+
+.toggle-option {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.toggle-option img {
+  width: 16px;
+  height: 16px;
+}
+
+/* Usage 컨테이너 */
+.usage-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* 중앙 설명 텍스트 */
+.start-section {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 700px;
+  padding: 18px 20px;
+}
+
+.start-title {
+  font-size: 2.1rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  color: #000;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fadeSlideUpTitle 0.9s ease-out forwards;
+}
+
+.start-subtext {
+  font-size: 1.2rem;
+  color: #1a1a1a;
+  line-height: 2.3;
+  font-weight: 550;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  white-space: pre-line;
+  margin-bottom: 65px;
+  transform: translateY(10px);
+  animation: fadeSlideUp 0.8s ease-out forwards;
+  animation-delay: 0.3s;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgb(75 75 75 / 6%);
+}
+
+@keyframes fadeSlideUpTitle {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  body.dark h1,
-  body.dark h2,
-  body.dark h3,
-  body.dark p {
-    color: #e1e1e1;
+}
+
+
+@keyframes fadeSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  body.dark .usage-section {
-    border-bottom: 1px solid #444;
-  }
-  
-  body.dark .menu-guide img {
-    content: url("images/menu_dark.svg");
-  }
-  
-  body.dark .icon-placeholder img,
-body.dark .usage-text img {
+}
+
+/* 기능 카드들 */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  margin-bottom: 80px;
+}
+
+.feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: #fff;
+  padding: 28px 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+
+
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.feature-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.feature-icon img {
+  width: 26px;
+  height: 26px;
+}
+
+.feature-content h3 {
+  margin: 0 0 14px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.feature-content p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.feature-content img {
+  width: 20px;
+  vertical-align: middle;
+  position: relative;
+  bottom: 1px;
+}
+
+.feature-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 활용 팁 섹션 */
+.tips-section {
+  margin-bottom: 60px;
+}
+
+.tips-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 16px;
+  margin-top: 0px;
+}
+
+.tips-subtitle {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 50px;
+  line-height: 1.5;
+}
+
+.tips-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tip-mac-window {
+  background: #fff;
+  color: #111;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  max-width: 768px;
+  margin: 0 auto;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tip-mac-header {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  background: #f1f1f1;
+  padding: 0 14px;
+  gap: 8px;
+}
+
+.tip-mac-header .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.tip-mac-header .red { background: #1A1A1D; }
+.tip-mac-header .yellow { background: #4F4F58; }
+.tip-mac-header .green { background: #6D6D7A; }
+
+.tip-mac-body {
+  padding: 32px 40px;
+  background: #fff;
+}
+
+.tip-item {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  background: transparent;
+  transition: all 0.2s ease;
+  box-shadow:
+  1px 1px 3px rgba(0, 0, 0, 0.1),
+  -1px -1px 3px rgba(255, 255, 255, 0.01);
+}
+
+.tip-item:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 5px 7px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.tip-step {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  background: #f5f5f5;
+  color: #444;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+
+.tip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.tip-number {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+}
+
+
+.tip-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111;
+  white-space: nowrap;
+}
+
+.tip-desc {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.tip-desc p {
+  margin: 4px 0;
+}
+
+.tip-item p:last-child {
+  margin-bottom: 0;
+}
+
+
+
+/* 푸터 */
+.site-footer {
+  margin-top: 60px;
+  padding: 20px 0 40px 0;
+  font-size: 10.5px;
+  color: #afafaf;
+  text-align: center;
+}
+
+.site-footer a {
+  color: #afafaf;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 다크 모드 스타일 */
+body.dark {
+  background: #212121;
+  color: #dfdfdf;
+}
+
+body.dark::before {
+  background-image:
+    repeating-linear-gradient(0deg, #3a3a3d 0px, #3a3a3d 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(90deg, #3a3a3d 0px, #3a3a3d 1px, transparent 1px, transparent 40px);
+}
+
+
+
+body.dark .home-btn {
+  background: #f5f5f5;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.4),
+    -8px -8px 16px rgba(255, 255, 255, 0.05);
+}
+
+
+body.dark .home-btn img {
+  color: black;
+}
+
+body.dark .mode-toggle {
+  background: #3f3f3f;
+  box-shadow:
+    inset 2px 2px 3px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 3px rgba(255, 255, 255, 0.05);
+}
+
+body.dark .toggle-indicator {
+  transform: translateX(33px);
+  background: #2d2d30;
+  box-shadow:
+    1px 1px 3px rgba(0, 0, 0, 0.4),
+    -1px -1px 3px rgba(255, 255, 255, 0.08);
+}
+
+/* 중앙 텍스트 */
+body.dark .start-title {
+  color: #f3f3f3;
+}
+
+body.dark .start-subtext {
+  color: #d0d0d0;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* 기능 카드 */
+body.dark .feature-card {
+  background: #2a2a2a;
+  color: #e1e1e1;
+  border: none;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.35), -2px -2px 3px rgba(255, 255, 255, 0.04);
+}
+
+body.dark .feature-content h3 {
+  color: #f0f0f0;
+}
+
+body.dark .feature-content p {
+  color: #cccccc;
+}
+
+body.dark .feature-icon {
+  background: #f5f5f5;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.04);
+}
+
+/* 팁 창 */
+body.dark .tip-mac-window {
+  background: #2a2a2a;
+  color: #e1e1e1;
+  border: none;
+  box-shadow: 
+    3px 3px 3px rgba(0, 0, 0, 0.35),
+    -3px -3px 3px rgba(255, 255, 255, 0.04);
+}
+
+body.dark .tip-mac-body {
+  background: #2a2a2a;
+}
+
+body.dark .tip-mac-header {
+  background: #1e1e1e;
+}
+
+body.dark .tip-mac-header .red {
+  background: #a3a3a3;
+}
+body.dark .tip-mac-header .yellow {
+  background: #dfdfdf;
+}
+body.dark .tip-mac-header .green {
+  background: #f3f3f3;
+}
+
+/* 팁 항목 */
+body.dark .tip-item {
+  border: 1px solid rgba(99, 99, 99, 0.08);
+  background: #2a2a2a;
+  color: #e1e1e1;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.3),
+    -2px -2px 6px rgba(255, 255, 255, 0.03);
+}
+
+body.dark .tip-item:hover {
+  box-shadow:
+    0 5px 7px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 숫자 라벨 */
+body.dark .tip-number {
+  background: #1f1f1f;
+  color: #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 제목 및 설명 */
+
+body.dark .tips-title {
   filter: brightness(0) invert(0.85);
 }
 
-  
-  .menu-guide {
-    text-align: center;
-    margin: 40px 0;
-  }
-  
-  .menu-guide img {
-    max-width: 80%;
-    height: auto;
-  }
-  
-@media (max-width: 768px) {
-  .usage-content {
-    align-items: flex-start; 
-    padding: 30px 30px 30px 0;
-    min-height: auto;
-  }
-
-  .usage-section {
-    flex-direction: row; 
-  }
-
-  .icon-placeholder {
-    margin-top: 4px; 
-  }
-
-  .icon-placeholder img {
-    width: 22px;
-    height: auto;
-  }
-
-  .usage-text h2 {
-    margin: 0 0 6px 0; 
-  }
-
-  .menu-guide img {
-    max-width: 95%;
-  }
-
-  body.dark .menu-guide img {
-    max-width: 95%;
-    filter: brightness(0.85);
-  }
+body.dark .tip-title {
+  filter: brightness(0) invert(0.85);
 }
 
+body.dark .tip-desc {
+  color: #d9d9d9;
+}
+
+body.dark .feature-content img {
+  filter: brightness(0) invert(0.9);
+}
+
+
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .header {
+    margin-bottom: 40px;
+    margin-top: 20px;
+  }
   
+  .page-title h1 {
+    font-size: 1.5rem;
+  }
   
- 
+  .usage-container {
+    padding: 15px;
+  }
+  
+  .intro-text {
+    font-size: 1rem;
+    margin-bottom: 60px;
+    padding: 20px 24px;
+  }
+  
+  .feature-cards {
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+  
+  .feature-card {
+    padding: 24px 20px;
+  }
+  
+  .tips-grid {
+    gap: 25px;
+  }
+  
+  .tip-item {
+    padding: 20px;
+  }
+  
+  .tips-section {
+    margin-bottom: 50px;
+  }
+  
+  .start-section {
+    padding: 32px 24px;
+  }
+
+}

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>단어 빈도 분석기 - 작가를 위한 분석 도구</title>
-
     <meta name="description" content="사용자 입력 텍스트에서 자주 쓰인 단어들을 두 가지로 분류해줍니다. 빠르고 직관적인 글쓰기 도우미.">
     <meta name="keywords" content="단어 분석기, 웹소설 도구, 글쓰기 도우미, 단어 빈도 체크, 글쓰기 툴, 포스타입 작가, 포타">
     <meta property="og:title" content="웹소설 작가를 위한 단어 빈도 분석기" />
@@ -15,9 +15,8 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Simple Sorter - 단어 빈도 분석기" />
-    <meta name="twitter:description" content="텍스트를 입력하면 단어 사용 빈도를 빠르게 분석합니다." />
+    <meta name="twitter:description" content="텍스트를 입력하면 단어 사용 빈도를 분석합니다." />
     <meta name="twitter:image" content="https://simplesorter.cc/images/og-image.png" />
-
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <link rel="stylesheet" href="/style.css" />
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
@@ -26,112 +25,142 @@
     <link rel="mask-icon" href="/images/logo.svg" color="#111111">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CPL32SRSN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-5CPL32SRSN');
-</script>
-
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5CPL32SRSN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5CPL32SRSN');
+    </script>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
 
-        <div class="button-group">
+    <nav class="main-nav">
+      <div class="nav-logo">
+        <a href="https://simplesorter.cc/">
+          <img src="/images/title.svg">
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="/usage.html">단어 빈도 분석기</a>
+        <a href="/tips.html">
+          <!-- <img src="/images/logo.svg"> -->
+          FAQ</a>
+      </div>
+
+      <div class="mode-toggle" onclick="toggleMode()">
+        <div class="toggle-indicator"></div>
+        <div class="toggle-option light">
+          <img src="/images/light.svg" alt="Light Mode">
+
+        </div>
+        <div class="toggle-option dark">
+          <img src="/images/dark.svg" alt="Dark Mode">
+
+        </div>
+      </div>
+      
+      
+    </nav>
+    
+    
+    <div class="page-wrapper">
 
 
-          <div class="export-wrapper">
-            <button class="export-btn">
-              <img src="/images/export.svg" alt="Export" />
+
+      <div class="container">
+
+        <div class="header">
+
+
+
+
+          <div class="page-title">
+            <h1>단어 빈도 분석기</h1>
+          </div>
+        </div>
+        <div class="input-section">
+          <textarea id="inputText" placeholder="분석할 문장을 입력해주세요"></textarea>
+          <div id="spinnerOverlay" class="spinner-overlay">
+            <div class="spinner"></div>
+          </div>
+        </div>
+        
+        <div class="analyze-btn-wrapper">
+          <button class="analyze-btn" onclick="analyzeText()">분석하기</button>
+        
+          <div class="filter-wrapper">
+            <button class="filter-toggle-btn" onclick="toggleFilter()">
+              <img src="/images/filter.svg" alt="Filter">
             </button>
-            
-          
-            <ul class="export-dropdown" id="exportDropdown">
-              <li onclick="exportData('txt')"> 
-                <img src="/images/text.svg" alt="Txt" />
+            <div class="filter-area" id="filterArea">
+              <div class="filter-inner">
+                <div class="filter-controls">
+                  <input type="text" id="filterInput" placeholder="제외할 단어" />
+                  <div class="filter-buttons">
+                    <button onclick="addFilter()"><img src="/images/plus.svg" alt="Plus"></button>
+                    <button onclick="clearAllFilters()"><img src="/images/delete.svg" alt="Plus"></button>
+                  </div>
+                </div>
+                <ul class="filter-list" id="filterList" style="display: none;"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="more-wrapper">
+            <button class="more-btn" onclick="toggleMoreMenu()">
+              <img src="/images/more.svg">
+            </button>
+            <ul class="more-dropdown" id="moreDropdown">
+              <li onclick="exportData('txt')">
+                <img src="/images/text.svg" alt="Txt"> TXT로 복사
               </li>
               <li onclick="exportData('md')">
-                <img src="/images/sharp.svg" alt="Md" />
+                <img src="/images/sharp.svg" alt="Md"> MD로 저장
+              </li>
+              <li onclick="setMinFrequency()">
+                <img src="/images/setting.svg" alt="Setting"> 설정
               </li>
             </ul>
           </div>
-          
 
-
-
-        <button class="mode-toggle-btn" onclick="toggleMode()">
-          <img id="mode-icon" src="/images/dark.svg" alt="Toggle Mode">
-        </button>
-        <button class="settings-btn" onclick="setMinFrequency()">
-          <img src="/images/setting.svg" alt="Setting">
-        </button>
-        <button class="info-btn" onclick="window.location.href='usage.html'">
-          <img src="/images/info.svg" alt="Info">
-        </button>
-      </div>
-     
-      <div class="page-title">
-        <h3 class="subtitle">창작자를 위한</h3>
-        <h1>단어 빈도 분석기</h1>
-      </div>
-
-      </div>
-      <div class="input-section">
-        <textarea id="inputText" placeholder="분석할 문장을 입력해주세요"></textarea>
-      </div>
-      <div class="analyze-btn-wrapper">
-        <button class="analyze-btn" onclick="analyzeText()">분석하기</button>
-        <div class="filter-wrapper">
-          <button class="filter-toggle-btn" onclick="toggleFilter()">
-            <img src="/images/filter.svg" alt="Filter">
-          </button>
-          <div class="filter-area" id="filterArea">
-            <div class="filter-inner">
-              <div class="filter-controls">
-                <input type="text" id="filterInput" placeholder="제외할 단어" />
-                <div class="filter-buttons">
-                  <button onclick="addFilter()">추가</button>
-                  <button onclick="clearAllFilters()">삭제</button>
-                </div>
-              </div>
-              <ul class="filter-list" id="filterList" style="display: none;"></ul>
-            </div>
-          </div>
         </div>
-      </div>
+        
+
+        </div>
+        <div class="result-tables" id="resultTables">
+          <table id="nounTable">
+            <thead><tr><th>명사</th><th>빈도</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <table id="verbTable">
+            <thead><tr><th>동사/형용사</th><th>빈도</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div> 
 
 
-      <div class="result-tables" id="resultTables">
-        <table id="nounTable">
-          <thead>
-            <tr>
-              <th>명사</th>
-              <th>빈도</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <table id="verbTable">
-          <thead>
-            <tr>
-              <th>동사/형용사</th>
-              <th>빈도</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      
+
+
+  
+
+      <footer class="site-footer">
+        <p>© 2025 SimpleSorter &nbsp;
+          <a href="privacy.html">개인정보처리방침</a> · 
+          <a href="terms.html">이용약관</a>
+        </p>
+      </footer>
 
     </div>
 
 
     <script>
+
       let filterWords = [];
       let minFrequency = 5;
+
 
       function addFilter() {
         const input = document.getElementById('filterInput');
@@ -148,22 +177,20 @@
         filterArea.classList.toggle('show');
       }
 
+      function setMinFrequency() {
+        const value = prompt("최소 빈도를 입력하세요:", minFrequency);
 
-function setMinFrequency() {
-  const value = prompt("최소 빈도를 입력하세요:", minFrequency);
+        if (value === null) {
+          return;
+        }
 
-  if (value === null) {
-    return;
-  }
+        const num = parseInt(value, 10);
+        if (!isNaN(num) && num > 0) {
+          minFrequency = num;
+          alert(`최소 빈도가 ${minFrequency}회로 설정되었습니다.`);
+        }
+      }
 
-  const num = parseInt(value, 10);
-  if (!isNaN(num) && num > 0) {
-    minFrequency = num;
-    alert(`최소 빈도가 ${minFrequency}회로 설정되었습니다.`);
-  }
-}
-
-  
       document.getElementById('filterInput').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -181,358 +208,309 @@ function setMinFrequency() {
         updateFilterList();
       }
 
-
-      document.addEventListener("DOMContentLoaded", () => {
-  const savedTheme = getCookie("theme");
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  }
-});
-
-      
       function updateFilterList() {
         const list = document.getElementById('filterList');
         list.innerHTML = '';
         filterWords.forEach(word => {
           const li = document.createElement('li');
-          li.innerHTML = `${word} 
-    
-							<button onclick="removeFilter('${word}')">×</button>`;
+          li.innerHTML = `${word} <button onclick="removeFilter('${word}')">×</button>`;
           list.appendChild(li);
         });
         
         list.style.display = filterWords.length > 0 ? 'flex' : 'none';
       }
-      async function analyzeText() {
-        const text = document.getElementById('inputText').value;
-        document.getElementById('resultTables').style.display = "flex";
-        if (!text.trim()) {
-          alert("내용을 입력하세요.");
+
+
+
+async function analyzeText() {
+  const text = document.getElementById('inputText').value;
+  
+
+  const spinnerOverlay = document.getElementById('spinnerOverlay');
+  const analyzeButton = document.querySelector('.analyze-btn');
+
+  document.getElementById('resultTables').style.display = "flex";
+  if (!text.trim()) {
+    alert("내용을 입력하세요.");
+    return;
+  }
+
+
+  spinnerOverlay.style.display = 'flex';
+  analyzeButton.disabled = true;
+  analyzeButton.textContent = '분석 중...';
+
+  try {
+    const response = await fetch("/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text,
+        min_freq: minFrequency
+      })
+    });
+    if (!response.ok) {
+      let msg = "서버 오류가 발생했습니다.";
+      try {
+        const err = await response.json();
+        if (err && err.error) msg = err.error;
+      } catch (_) {
+        const text = await response.text();
+        if (text) msg = text;
+      }
+      throw new Error(msg);
+    }
+    const data = await response.json();
+    const nounBody = document.querySelector("#nounTable tbody");
+    const verbBody = document.querySelector("#verbTable tbody");
+    nounBody.innerHTML = "";
+    verbBody.innerHTML = "";
+    if ((!data.nouns || data.nouns.length === 0) && (!data.verbs || data.verbs.length === 0)) {
+      nounBody.innerHTML = `<tr><td colspan="2">명사 결과 없음</td></tr>`;
+      verbBody.innerHTML = `<tr><td colspan="2">동사/형용사 결과 없음</td></tr>`;
+    } else {
+      data.nouns.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
+        nounBody.innerHTML += `<tr><td>${word}</td><td>${count}</td></tr>`;
+      });
+      data.verbs.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
+        verbBody.innerHTML += `<tr><td>${word}</td><td>${count}</td></tr>`;
+      });
+    }
+    document.getElementById('nounTable').style.display = "table";
+    document.getElementById('verbTable').style.display = "table";
+  } catch (err) {
+    console.error(err);
+    const msg = (err && err.message) ? err.message : "분석 중 오류가 발생했습니다.";
+    alert(msg);
+  } finally {
+
+    spinnerOverlay.style.display = 'none';
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = '분석하기';
+  }
+}
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark");
+        }
+      });
+      
+      document.addEventListener("DOMContentLoaded", () => {
+        const exportBtn = document.querySelector(".export-btn");
+        const exportDropdown = document.getElementById("exportDropdown");
+
+        if (exportBtn && exportDropdown) {
+          exportBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            exportDropdown.classList.toggle("show");
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          if (
+            exportBtn && exportDropdown &&
+            !exportBtn.contains(e.target) &&
+            !exportDropdown.contains(e.target)
+          ) {
+            exportDropdown.classList.remove("show");
+          }
+        });
+      });
+
+      async function exportData(format) {
+        const nounTable = document.getElementById("nounTable");
+        const verbTable = document.getElementById("verbTable");
+        const exportDropdown = document.getElementById("exportDropdown");
+
+        const nounRows = Array.from(nounTable.querySelectorAll("tbody tr"))
+          .map(tr => Array.from(tr.children).map(td => td.innerText));
+        const verbRows = Array.from(verbTable.querySelectorAll("tbody tr"))
+          .map(tr => Array.from(tr.children).map(td => td.innerText));
+
+        const noResults = ((!nounRows.length || nounRows[0][0].includes("없음")) &&
+                           (!verbRows.length || verbRows[0][0].includes("없음")));
+        if (noResults) {
+          showToast("분석 결과가 없습니다.");
+          if (exportDropdown) exportDropdown.classList.remove("show");
           return;
         }
-        try {
-          const response = await fetch("/analyze", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              text,
-              min_freq: minFrequency
-            })
+
+        const today = new Date();
+        const dateStr = String(today.getMonth() + 1).padStart(2, '0') +
+                        String(today.getDate()).padStart(2, '0');
+
+        let content = "";
+        let filename = `word-frequency_${dateStr}.${format}`;
+
+        if (format === "txt") {
+          content += "[명사]\n";
+          nounRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
+          content += "\n[동사/형용사]\n";
+          verbRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
+        } else if (format === "md") {
+          content += "## 명사\n\n| 단어 | 빈도 |\n|------|------|\n";
+          nounRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
+          content += "\n## 동사/형용사\n\n| 단어 | 빈도 |\n|------|------|\n";
+          verbRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
+        }
+
+        function showToast(message) {
+          const existing = document.getElementById("simple-copy-toast");
+          if (existing) existing.remove();
+
+          const t = document.createElement("div");
+          t.id = "simple-copy-toast";
+          t.innerText = message;
+          Object.assign(t.style, {
+            position: "fixed",
+            bottom: "24px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "8px 12px",
+            fontSize: "13px",
+            borderRadius: "6px",
+            background: "rgba(0,0,0,0.8)",
+            color: "#fff",
+            zIndex: 2000,
+            boxShadow: "0 1px 6px rgba(0,0,0,0.2)",
+            opacity: "0",
+            transition: "opacity 160ms ease",
+            pointerEvents: "none",
           });
-          if (!response.ok) {
-            // 서버가 JSON 에러 메시지를 주도록 수정했지만, 방어적으로 처리
-            let msg = "서버 오류가 발생했습니다.";
+          document.body.appendChild(t);
+          requestAnimationFrame(() => { t.style.opacity = "1"; });
+          setTimeout(() => {
+            t.style.opacity = "0";
+            setTimeout(() => {
+              const el = document.getElementById("simple-copy-toast");
+              if (el) el.remove();
+            }, 180);
+          }, 1500);
+        }
+
+        if (format === "md") {
+          const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+          const link = document.createElement("a");
+          const url = URL.createObjectURL(blob);
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          if (exportDropdown) exportDropdown.classList.remove("show");
+          return;
+        }
+
+        async function copyToClipboard(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
             try {
-              const err = await response.json();
-              if (err && err.error) msg = err.error;
-            } catch (_) {
-              const text = await response.text();
-              if (text) msg = text;
-            }
-            throw new Error(msg);
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (e) {}
           }
-          const data = await response.json();
-          const nounBody = document.querySelector("#nounTable tbody");
-          const verbBody = document.querySelector("#verbTable tbody");
-          nounBody.innerHTML = "";
-          verbBody.innerHTML = "";
-          if ((!data.nouns || data.nouns.length === 0) && (!data.verbs || data.verbs.length === 0)) {
-            nounBody.innerHTML = `
-    
-							<tr>
-								<td colspan="2">명사 결과 없음</td>
-							</tr>`;
-            verbBody.innerHTML = `
-    
-							<tr>
-								<td colspan="2">동사/형용사 결과 없음</td>
-							</tr>`;
-          } else {
-            data.nouns.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
-              nounBody.innerHTML += `
-    
-							<tr>
-								<td>${word}</td>
-								<td>${count}</td>
-							</tr>`;
-            });
-            data.verbs.filter(([word]) => !filterWords.includes(word)).forEach(([word, count]) => {
-              verbBody.innerHTML += `
-    
-							<tr>
-								<td>${word}</td>
-								<td>${count}</td>
-							</tr>`;
-            });
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.setAttribute("readonly", "");
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, ta.value.length);
+            const ok = document.execCommand("copy");
+            document.body.removeChild(ta);
+            return !!ok;
+          } catch (e) {
+            return false;
           }
-          document.getElementById('nounTable').style.display = "table";
-          document.getElementById('verbTable').style.display = "table";
-        } catch (err) {
-          console.error(err);
-          const msg = (err && err.message) ? err.message : "분석 중 오류가 발생했습니다.";
-          alert(msg);
+        }
+
+        const copied = await copyToClipboard(content);
+        if (copied) showToast("클립보드에 복사되었습니다.");
+
+        if (exportDropdown) exportDropdown.classList.remove("show");
+      }
+
+      function toggleMode() {
+        document.body.classList.toggle("dark");
+
+        if (document.body.classList.contains("dark")) {
+          setCookie("theme", "dark", 3);
+          localStorage.setItem("theme", "dark");
+        } else {
+          setCookie("theme", "light", 3);
+          localStorage.setItem("theme", "light");
         }
       }
 
-      function getTodayDate() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${month}${day}`; 
-}
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = getCookie("theme") || localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark");
+        } else {
+          document.body.classList.remove("dark");
+        }
+      });
 
-
-document.addEventListener("DOMContentLoaded", () => {
-  const exportBtn = document.querySelector(".export-btn");
-  const exportDropdown = document.getElementById("exportDropdown");
-
-  if (exportBtn && exportDropdown) {
-    exportBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      exportDropdown.classList.toggle("show");
-    });
-  }
-
-  
-  document.addEventListener("click", (e) => {
-    if (
-      !exportBtn.contains(e.target) &&
-      !exportDropdown.contains(e.target)
-    ) {
-      exportDropdown.classList.remove("show");
-    }
-  });
-});
-
-
-
-async function exportData(format) {
-  const nounTable = document.getElementById("nounTable");
-  const verbTable = document.getElementById("verbTable");
-  const exportDropdown = document.getElementById("exportDropdown");
-
-  const nounRows = Array.from(nounTable.querySelectorAll("tbody tr"))
-    .map(tr => Array.from(tr.children).map(td => td.innerText));
-  const verbRows = Array.from(verbTable.querySelectorAll("tbody tr"))
-    .map(tr => Array.from(tr.children).map(td => td.innerText));
-
-  const noResults = ((!nounRows.length || nounRows[0][0].includes("없음")) &&
-                     (!verbRows.length || verbRows[0][0].includes("없음")));
-  if (noResults) {
-    showToast("분석 결과가 없습니다.");
-    if (exportDropdown) exportDropdown.classList.remove("show");
-    return;
-  }
-
-  const today = new Date();
-  const dateStr = String(today.getMonth() + 1).padStart(2, '0') +
-                  String(today.getDate()).padStart(2, '0');
-
-  let content = "";
-  let filename = `word-frequency_${dateStr}.${format}`;
-
-  if (format === "txt") {
-    content += "[명사]\n";
-    nounRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
-    content += "\n[동사/형용사]\n";
-    verbRows.forEach(r => { if (r.length === 2) content += `${r[0]} - ${r[1]}회\n`; });
-  } else if (format === "md") {
-    content += "## 명사\n\n| 단어 | 빈도 |\n|------|------|\n";
-    nounRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
-    content += "\n## 동사/형용사\n\n| 단어 | 빈도 |\n|------|------|\n";
-    verbRows.forEach(r => { if (r.length === 2) content += `| ${r[0]} | ${r[1]} |\n`; });
-  } else {
-    showToast("지원하지 않는 형식입니다.");
-    if (exportDropdown) exportDropdown.classList.remove("show");
-    return;
-  }
-
-  if (!content.trim()) {
-    showToast("복사할 내용이 없습니다.");
-    if (exportDropdown) exportDropdown.classList.remove("show");
-    return;
-  }
-
-  
-  function showToast(message) {
-    const existing = document.getElementById("simple-copy-toast");
-    if (existing) existing.remove();
-
-    const t = document.createElement("div");
-    t.id = "simple-copy-toast";
-    t.innerText = message;
-    Object.assign(t.style, {
-      position: "fixed",
-      bottom: "24px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      padding: "8px 12px",
-      fontSize: "13px",
-      borderRadius: "6px",
-      background: "rgba(0,0,0,0.8)",
-      color: "#fff",
-      zIndex: 2000,
-      boxShadow: "0 1px 6px rgba(0,0,0,0.2)",
-      opacity: "0",
-      transition: "opacity 160ms ease",
-      pointerEvents: "none",
-    });
-    document.body.appendChild(t);
-    requestAnimationFrame(() => { t.style.opacity = "1"; });
-    setTimeout(() => {
-      t.style.opacity = "0";
-      setTimeout(() => {
-        const el = document.getElementById("simple-copy-toast");
-        if (el) el.remove();
-      }, 180);
-    }, 1500);
-  }
-
-  
-  if (format === "md") {
-    
-    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    if (exportDropdown) exportDropdown.classList.remove("show");
-    return;
-  }
-
-  
-  async function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (e) {
-        
+      function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
       }
-    }
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.left = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, ta.value.length);
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return !!ok;
-    } catch (e) {
-      return false;
-    }
-  }
 
-  const copied = await copyToClipboard(content);
-  if (copied) showToast("클립보드에 복사되었습니다.");
-  
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
 
-  if (exportDropdown) exportDropdown.classList.remove("show");
-}
-
-
-
-function toggleMode() {
-  document.body.classList.toggle("dark");
-
-  if (document.body.classList.contains("dark")) {
- 
-    setCookie("theme", "dark", 3);
-    localStorage.setItem("theme", "dark");
-  } else {
-
-    setCookie("theme", "light", 3);
-    localStorage.setItem("theme", "light");
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const savedTheme = getCookie("theme") || localStorage.getItem("theme");
-
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  } else {
-    document.body.classList.remove("dark");
-  }
-});
-
-
-function setCookie(name, value, days) {
-  const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
-}
-
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
-
-
-
-
-function setCookie(name, value, days) {
-  const date = new Date();
-  date.setTime(date.getTime() + (days*24*60*60*1000));
-  const expires = "expires=" + date.toUTCString();
-  document.cookie = name + "=" + value + ";" + expires + ";path=/";
-}
-
-
-function getCookie(name) {
-  const cname = name + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
-  for(let i=0; i < ca.length; i++) {
-    let c = ca[i].trim();
-    if (c.indexOf(cname) == 0) {
-      return c.substring(cname.length, c.length);
-    }
-  }
-  return "";
-}
-
-document.querySelectorAll(".custom-select").forEach(select => {
-  const selected = select.querySelector(".selected");
-  const options = select.querySelector(".options");
-
-  selected.addEventListener("click", () => {
-    options.style.display =
-      options.style.display === "flex" ? "none" : "flex";
-  });
-
-  options.querySelectorAll("div").forEach(option => {
-    option.addEventListener("click", () => {
-      selected.innerHTML = option.innerHTML;
-      options.style.display = "none";
-      console.log("선택됨:", option.dataset.value);
+      document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") document.body.classList.add("dark");
     });
-  });
+    
+    function toggleMode() {
+  document.body.classList.toggle("dark");
+}
+
+
+function toggleMoreMenu() {
+  const menu = document.getElementById('moreDropdown');
+  const btn  = document.querySelector('.more-btn');
+
+
+  menu.classList.toggle('show');
+  btn.setAttribute('aria-expanded', menu.classList.contains('show'));
+}
+
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('moreDropdown');
+  const btn  = document.querySelector('.more-btn');
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.remove('show');
+    btn.setAttribute('aria-expanded', 'false');
+  }
 });
 
 
-      
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const menu = document.getElementById('moreDropdown');
+    const btn  = document.querySelector('.more-btn');
+    menu.classList.remove('show');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+
+
     </script>
-
-<footer class="site-footer">
-  <p>© 2025 SimpleSorter. All rights reserved. &nbsp;
-    <a href="privacy.html">개인정보처리방침</a> · 
-    <a href="terms.html">이용약관</a>
-  </p>
-</footer>
-
-
 
   </body>
 </html>

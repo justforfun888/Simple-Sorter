@@ -15,6 +15,7 @@
       color: #333;
     }
 
+    /* 홈 버튼 스타일 (고정, 왼쪽 상단) */
     .home-btn {
       position: fixed;
       top: 30px;
@@ -45,38 +46,40 @@
       outline-offset: 2px;
     }
 
+    /* 페이지 제목 (왼쪽 정렬) */
     h3.page-title {
       text-align: center;
       margin: 0 0 30px 0;
-      color: #666666;
+      color: #666666; /* 제목 회색 */
       font-size: 1.2125rem;
     }
 
+    /* 보조 문장 (노트) */
     .note {
-
+      margin-bottom: 30px;
       color: #666666;
       text-align: center;
       font-size: 0.8125rem;
     }
 
-
+    /* 각 항목 래퍼 */
     .term-item {
       margin-bottom: 18px;
       text-align: left;
     }
 
-
+    /* 항목 제목 */
     .term-item h4 {
       margin: 0 0 6px 0;
       font-size: 0.8125rem;
       font-weight: 600;
-      color: #666666;
+      color: #666666; /* 제목 회색 */
     }
 
-
+    /* 항목 내용 (더 연한 회색) */
     .term-item p {
       margin: 0;
-      color: #9a9a9a;
+      color: #9a9a9a; /* 본문 연한 회색 */
       font-size: 0.7825rem;
       white-space: pre-wrap;
     }
@@ -89,7 +92,7 @@
       text-align: left;
     }
 
-
+    /* 작은 화면에서 홈버튼/여백 보정 */
     @media (max-width: 420px) {
       .home-btn {
         top: 18px;
@@ -104,8 +107,8 @@
   </style>
 </head>
 <body>
-
-  <a href="index.html" class="home-btn" aria-label="홈">
+  <!-- 홈 버튼 (index.html로 이동) -->
+  <a href="index.html" class="home-btn" aria-label="홈으로 이동">
     <img src="images/home.svg" alt="main">
   </a>
 
@@ -171,7 +174,7 @@
 
 <div class="term-item">
   <h4>제9조 (개인정보 보호책임자)</h4>
-  <p>담당자: 운영자 / 이메일: contact@simplesorter.cc</p>
+  <p>담당자: 사이트 운영자 / 이메일: simplesorter@gmail.com</p>
 </div>
 
 <div class="term-item">
@@ -188,10 +191,8 @@
   <p>본 개인정보 처리방침은 관련 법령·정책 또는 서비스 내용의 변경에 따라 수정될 수 있으며, 변경 시 변경·시행일 및 변경사유를 본 페이지에 게시하여 이용자가 쉽게 확인할 수 있도록 합니다.</p>
 </div>
 
-<p class="term-footer">본 약관은 2025년 8월 21일부터 시행합니다.</p>
+<p class="term-footer">본 약관은 2025년 8월 20일부터 시행합니다.</p>
 
 
 </body>
 </html>
-
-
