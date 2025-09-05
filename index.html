@@ -8,7 +8,7 @@
     <meta name="description" content="사용자 입력 텍스트에서 자주 쓰인 단어들을 두 가지로 분류해줍니다. 빠르고 직관적인 글쓰기 도우미.">
     <meta name="keywords" content="단어 분석기, 웹소설 도구, 글쓰기 도우미, 단어 빈도 체크, 글쓰기 툴, 포스타입 작가, 포타">
     <meta property="og:title" content="웹소설 작가를 위한 단어 빈도 분석기" />
-    <meta property="og:description" content="자주 쓰는 단어를 분석하고 스타일을 개선하세요." />
+    <meta property="og:description" content="내가 자주 쓰는 단어를 분석해보세요." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://simplesorter.cc" />
     <meta property="og:image" content="https://simplesorter.cc/og-image.jpg" />
@@ -136,6 +136,39 @@
             <tbody></tbody>
           </table>
         </div>
+
+        <section id="ss-embedded-toggles" class="ss-section">
+          <details class="ss-toggle" open>
+            <summary class="ss-summary">
+              <span>단어 빈도 분석기?</span>
+              <svg class="ss-caret" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </summary>
+            <div id="ss-usage"></div>
+          </details>
+        
+          <details class="ss-toggle" open>
+            <summary class="ss-summary">
+              <span>FAQ</span>
+              <svg class="ss-caret" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </summary>
+            <div id="ss-tips"></div>
+          </details>
+        </section>
+        
+        <style>
+          /* 토글 자체 스타일(메인 style.css와 충돌 최소화를 위해 접두사 ss-) */
+          #ss-embedded-toggles { max-width: 900px; margin: 28px auto 60px; padding: 0 8px; }
+          .ss-toggle { border: 1px solid #eee; border-radius: 14px; background: #fbfbfb; box-shadow: 0 2px 10px rgba(0,0,0,.04); margin-bottom: 14px; overflow: hidden; }
+          .ss-summary { list-style: none; cursor: pointer; padding: 16px 18px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+          .ss-summary::-webkit-details-marker { display: none; }
+          .ss-toggle[open] .ss-caret { transform: rotate(180deg); }
+          .ss-caret { transition: transform .2s ease; opacity: .7; }
+          .ss-toggle > div { padding: 0; }
+          /* 다크 모드 배경 대비 (메인 바디가 dark일 때 톤 맞춤) */
+          body.dark .ss-toggle { background: #2a2a2a; border-color: #3a3a3a; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+          body.dark .ss-summary { color: #e6e6e6; }
+        </style>
+        
       </div> 
 
 
@@ -507,8 +540,85 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+// 임시 스크립트
+
+
+async function mountShadow({ hostId, htmlUrl, cssUrl, selector, scrub = [] }) {
+  const host = document.getElementById(hostId);
+  if (!host) return;
+
+  const [htmlText, cssText] = await Promise.all([
+    fetch(htmlUrl, { credentials: 'same-origin' }).then(r => r.text()),
+    fetch(cssUrl,  { credentials: 'same-origin' }).then(r => r.text())
+  ]);
+
+  // HTML 파싱 후 지정 섹션만 추출
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlText, 'text/html');
+  const picked = doc.querySelector(selector);
+  const shadow = host.attachShadow({ mode: 'open' });
+
+  if (!picked) {
+    shadow.innerHTML = `<div style="padding:16px;color:#b00;font-size:14px">섹션(${selector})을 찾지 못했습니다.</div>`;
+    return;
+  }
+
+  // body.dark → :host-context(body.dark) 로 교체하여 다크모드 연결
+  // (그 외 전역 body 규칙은 그대로 두어 내부에서만 동작)
+  const processedCss = cssText
+    .replaceAll(/body\.dark/g, ':host-context(body.dark)')
+    // 일부 reset이 바깥에 영향 못 주도록 :host 로 보강 (선택적으로 최소 적용)
+    .replaceAll(/\n\s*body\s*{/g, '\n:host{' );
+
+  // 섹션 복제 후 원본 전용 요소 제거
+  const shell = document.createElement('div');
+  shell.innerHTML = picked.outerHTML;
+
+  // 페이지 전용 UI(홈버튼/모드토글/내비/푸터 등) 제거
+  const removeList = [
+    '.home-btn', '.mode-toggle', 'nav.main-nav', 'footer.site-footer',
+    '.button-group', '.page-title'
+  ].concat(scrub);
+
+  removeList.forEach(sel => shell.querySelectorAll(sel).forEach(el => el.remove()));
+
+  // Shadow DOM 주입
+  shadow.innerHTML = `<style>${processedCss}</style>${shell.innerHTML}`;
+
+  // Tips FAQ: 접힘/펼침 동작 부여
+  if (selector.includes('tip-section-container')) {
+    shadow.querySelectorAll('.faq-item .faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        if (item) item.classList.toggle('active');
+      });
+    });
+  }
+}
+
+// Usage 섹션 마운트
+mountShadow({
+  hostId: 'ss-usage',
+  htmlUrl: '/usage.html',
+  cssUrl: '/usage.css',
+  selector: '.usage-container',
+  scrub: [] // 필요시 제거할 추가 셀렉터를 배열에 넣어줘
+});
+
+// Tips 섹션 마운트
+mountShadow({
+  hostId: 'ss-tips',
+  htmlUrl: '/tips.html',
+  cssUrl: '/tips.css',
+  selector: '.tip-section-container',
+  scrub: []
+});
+
+
 
     </script>
+
+
 
   </body>
 </html>
