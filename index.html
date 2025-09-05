@@ -46,8 +46,8 @@
         </a>
       </div>
       <div class="nav-links">
-        <a href="/usage.html">단어 빈도 분석기</a>
-        <a href="/tips.html">FAQ</a>
+        <a href="/usage/">단어 빈도 분석기</a>
+        <a href="/tips/">FAQ</a>
       </div>
 
       <div class="mode-toggle" onclick="toggleMode()">
@@ -603,16 +603,16 @@ async function mountShadow({ hostId, htmlUrl, cssUrl, selector, scrub = [] }) {
 // Usage 섹션 마운트
 mountShadow({
   hostId: 'ss-usage',
-  htmlUrl: '/usage.html',
+  htmlUrl: '/usage/', 
   cssUrl: '/usage.css',
   selector: '.usage-container',
-  scrub: [] // 필요시 제거할 추가 셀렉터를 배열에 넣어줘
+  scrub: []
 });
 
 // Tips 섹션 마운트
 mountShadow({
   hostId: 'ss-tips',
-  htmlUrl: '/tips.html',
+  htmlUrl: '/tips/',  
   cssUrl: '/tips.css',
   selector: '.tip-section-container',
   scrub: []
